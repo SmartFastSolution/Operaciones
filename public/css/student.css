@@ -1,0 +1,7 @@
+.nav {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  padding-left: 0 !important;
+  margin-bottom: 0 !important;
+  list-style: none !important;
+}
