@@ -17,3 +17,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::prefix('v1')->group(function () {
+	Route::get('/requerimientos', 'Api\RequerimientoController@index')->name('requerimientos.index');
+	Route::get('/requerimiento/{id}', 'Api\RequerimientoController@show')->name('requerimientos.show');
+	Route::post('/requerimientos/store', 'Api\RequerimientoController@store')->name('requerimientos.store');
+});
+

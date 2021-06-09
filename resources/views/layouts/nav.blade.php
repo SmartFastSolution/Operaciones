@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{{ asset('bundles/izitoast/css/iziToast.min.css') }}">
     @livewireStyles
     @yield('css')
-    <link rel="icon" type="img/png" href="{{ asset('img/smartmoodle.png') }}">
+    <link rel="icon" type="img/png" href="{{ asset('img/logo.png') }}">
     
   </head>
   <body>
@@ -42,7 +42,16 @@
                   </div>
                 </form>
               </li>
+               
+              {{-- <li class="nav-link text-dark font-weight-bold"><a href=" " class="nav-link">CALENDARIO</a> </li> --}}
             </ul>
+    {{--         @role('coordinador')
+            <ul class="navbar-nav navbar-left">
+              <li class="dropdown">
+              <a href="{{ route('coordinador.calendario') }}"  class="nav-link dropdown-toggle nav-link-lg nav-link-user text-dark">
+                Calendario</a></li>
+            </ul>
+            @endrole --}}
           </div>
           <ul class="navbar-nav navbar-right">
             @guest
@@ -70,8 +79,11 @@
                   @role('coordinador')
                   <a href="{{ route('coordinador.perfil.me') }}" class="dropdown-item has-icon"> <i class="far fa-user"></i> Perfil </a>
                   @endrole
-                  <a href="timeline.html" class="dropdown-item has-icon"> <i class="fas fa-bolt"></i> Actividades</a>
-                  <a href="" class="dropdown-item has-icon"> <i class="fas fa-cog"></i>Configuracion</a>
+                   @role('operador')
+                    <a href="{{ route('operador.perfil.me') }}" class="dropdown-item has-icon"> <i class="far fa-user"></i> Perfil </a>
+                    @endrole
+                  {{-- <a href="timeline.html" class="dropdown-item has-icon"> <i class="fas fa-bolt"></i> Actividades</a> --}}
+                  {{-- <a href="" class="dropdown-item has-icon"> <i class="fas fa-cog"></i>Configuracion</a> --}}
                   <div class="dropdown-divider"></div>
                   <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item has-icon text-danger"> <i class="fas fa-sign-out-alt"></i>
                     Cerrar Sesion
@@ -89,7 +101,7 @@
               <div class="sidebar-brand">
                 
                 <a href="{{ route('index') }}">
-                  <img alt="image" src="{{ asset('img/smartmoodle.png') }}" class="header-logo">
+                  <img alt="image" src="{{ asset('img/logo.png') }}" class="header-logo">
                   
                   <span class="logo-name">Operaciones</span>
                 </a>
@@ -104,11 +116,20 @@
                 </div>
                 <div class="sidebar-user-details">
                   <div class="user-name">{{ Auth::user()->nombres }}</div>
+                  @role('super-admin|admin')
                   <div class="user-role">Administrador</div>
+                  @endrole
+                  @role('coordinador')
+                  <div class="user-role">Coordinador</div>
+                  @endrole
+                  @role('operador')
+                  <div class="user-role">Operador</div>
+                  @endrole
                 </div>
               </div>
               <ul class="sidebar-menu">
                 @role('super-admin')
+                <li class="@yield('adminindex')"><a class="nav-link" href="{{ route('admin.index') }}"><i class=" fa fa-tachometer-alt"></i><span>Inicio</span></a></li>
                 <li class="menu-header">Administracion</li>
                 <li class="dropdown @yield('usuarios')">
                   <a href="#" class="nav-link has-dropdown "><i class="fas fa-users"></i><span>Usuarios</span></a>
@@ -123,24 +144,35 @@
                   </ul>
                 </li>
                 <li class="dropdown @yield('medidas')">
-                  <a href="#" class="nav-link has-dropdown "><i class="fad fa-weight"></i><span>Medidas</span></a>
+                  <a href="#" class="nav-link has-dropdown "><i class="fas fa-weight"></i><span>Medidas</span></a>
                   <ul class="dropdown-menu  ">
                     <li><a class="nav-link" href="{{ route('medida.index') }}">Unidades de Medidas</a></li>
                   </ul>
                 </li>
                 <li class="dropdown @yield('tipos-registro')">
-                  <a href="#" class="nav-link has-dropdown "><i class="fad fa-weight"></i><span>Tipos de Requerimientos</span></a>
+                  <a href="#" class="nav-link has-dropdown "><i class="fas fa-clipboard-list"></i><span>Requerimientos</span></a>
                   <ul class="dropdown-menu  ">
                     <li><a class="nav-link" href="{{ route('tipo-requerimiento.index') }}">Requerimientos</a></li>
                   </ul>
                 </li>
                 @endrole
-                
                 @role('admin')
                 <li class="menu-header">Admin</li>
                 @endrole
                 @role('coordinador')
+                 <li class="@yield('adminindex')"><a class="nav-link" href="{{ route('coordinador.index') }}"><i class=" fa fa-tachometer-alt"></i><span>Inicio</span></a></li>
                 <li class="menu-header">Coordinador</li>
+                
+                <li class="dropdown @yield('requerimiento')">
+                  <a href="#" class="nav-link has-dropdown "><i class="fas fa-clipboard-list"></i><span>Requerimientos</span></a>
+                  <ul class="dropdown-menu  ">
+                    <li class="@yield('productos')"><a class="nav-link" href="{{ route('coordinador.requerimiento.index') }}">Requerimientos</a></li>
+                    {{-- <li class="@yield('atencion')"><a class="nav-link" href="{{ route('coordinador.producto.ingreso') }}">Atencion Requerimiento</a></li> --}}
+                    <li class="@yield('asignacion')"><a class="nav-link" href="{{ route('coordinador.requerimiento.asignar') }}">Asignar Requerimientos</a></li>
+                    <li class="@yield('ver_mapa')"><a class="nav-link" href="{{ route('coordinador.mapa') }}">Ver Mapa</a></li>
+                    <li class="@yield('calendario')"><a class="nav-link" href="{{ route('coordinador.calendario') }}">Calendario</a></li>
+                  </ul>
+                </li>
                 <li class="dropdown @yield('bodega')">
                   <a href="#" class="nav-link has-dropdown "><i class="fas fa-store"></i><span>Bodega</span></a>
                   <ul class="dropdown-menu  ">
@@ -150,6 +182,11 @@
                   </ul>
                 </li>
                 @endrole
+                 @role('operador')
+                <li class="menu-header">Operador</li>
+                 
+                 <li class="@yield('adminindex')"><a class="nav-link" href="{{ route('operador.index') }}"><i class=" fa fa-tachometer-alt"></i><span>Inicio</span></a></li>
+                @endrole
               </ul>
             </aside>
           </div>
@@ -157,7 +194,16 @@
           <div class="main-content">
             <nav aria-label="breadcrumb">
               <ol class="breadcrumb">
+                  @role('super-admin|admin')
                 <li class="breadcrumb-item"><a href="{{ route('admin.index') }}"><i class="fas fa-tachometer-alt"></i> Inicio</a></li>
+                  @endrole
+                  @role('coordinador')
+                <li class="breadcrumb-item"><a href="{{ route('coordinador.index') }}"><i class="fas fa-tachometer-alt"></i> Inicio</a></li> 
+                  @endrole
+                  @role('operador')
+                <li class="breadcrumb-item"><a href="{{ route('operador.index') }}"><i class="fas fa-tachometer-alt"></i> Inicio</a></li>
+                  
+                  @endrole
                 @yield('breadcrumb')
               </ol>
             </nav>
@@ -168,7 +214,7 @@
               </a>
               <div class="settingSidebar-body ps-container ps-theme-default">
                 <div class=" fade show active">
-                  <div class="setting-panel-header">Panel de Configuracion
+                  <div class="setting-panel-header">Panel de Configuración
                   </div>
                   <div class="p-15 border-bottom">
                     <h6 class="font-medium m-b-10">Seleccionar diseño</h6>

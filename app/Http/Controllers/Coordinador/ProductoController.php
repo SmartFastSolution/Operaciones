@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers\Coordinador;
 
+use App\ConversionUnidad;
+use App\Egreso;
 use App\Http\Controllers\Controller;
+use App\Ingreso;
+use App\Medida;
+use App\Product;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
@@ -15,9 +20,10 @@ class ProductoController extends Controller
 	{
     	return view('coordinador.productos.index');	
 	}
-	public function show()
+	public function show($id)
 	{
-    	return view('coordinador.productos.index');	
+		$producto = Product::findOrFail($id,['id', 'nombre']);
+    	return view('coordinador.productos.producto-detalles', compact('id', 'producto'));	
 	}
 	public function ingresos()
 	{
@@ -25,10 +31,22 @@ class ProductoController extends Controller
 	}
 	public function egresos()
 	{
-    	return view('coordinador.productos.egreso');	
+		$productos = Product::where('estado', 'on')->with(['medida' => function($query) {
+	            $query->select('id', 'simbolo');
+	        }])->get();
+		$conversiones = ConversionUnidad::all(['id','medida_base', 'medida_conversion', 'factor']);
+		$medidas = Medida::all(['id','unidad', 'simbolo']);
+    	return view('coordinador.productos.egreso', compact('productos', 'medidas', 'conversiones'));	
 	}
 	public function ingresoShow($id)
 	{
+		$ingreso = Ingreso::findOrFail($id);
     	return view('coordinador.productos.ingreso-detalles', compact('id'));	
+	}
+		public function egresoShow($id)
+	{
+		$egreso = Egreso::findOrFail($id);
+
+    	return view('coordinador.productos.egreso-detalles', compact('id', 'egreso'));	
 	}
 }

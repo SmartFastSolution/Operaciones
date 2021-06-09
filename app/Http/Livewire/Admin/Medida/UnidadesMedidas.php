@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin\Medida;
 
+use App\ConversionUnidad;
 use App\Medida;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -24,8 +25,13 @@ class UnidadesMedidas extends Component
 	public $medida_id ='';
 	public $editMode  = false;
 	public $magnitud_medida, $unidad_medida, $icono_medida, $descripcion_medida;
+
+	//CONVERSIONES
+	public $medida, $conversiones = [], $medida_conversion = '', $factor, $operacion ='', $medi_id, $conversion_id ='',  $editConversion = false, $conversion;
+
     public function render()
     {
+
     	$medidas = Medida::where(function ($query) {
                        $query->where('magnitud', 'like', '%'.$this->search.'%')
                         ->orWhere('unidad', 'like', '%'.$this->search.'%')
@@ -65,6 +71,13 @@ class UnidadesMedidas extends Component
 		$medida->descripcion = $this->descripcion_medida;
 		$medida->estado      = $this->estado;
 		$medida->save();
+
+		$conversion                    = new ConversionUnidad;
+		$conversion->medida_base       = $medida->id;
+		$conversion->medida_conversion = $medida->id;
+		$conversion->factor            = 1;
+		// $conversion->accion            = $this->operacion;
+		$conversion->save();
         $this->resetInput();
         $this->emit('success',['mensaje' => 'Sector Registrado Correctamente', 'modal' => '#createMedida']); 
    	}
@@ -75,6 +88,8 @@ class UnidadesMedidas extends Component
 		$this->icono_medida       = null;
 		$this->descripcion_medida = null;
 		$this->estado             = "on";
+		$this->editMode           = false;
+		
     }
     public function estadochange($id)
     {
@@ -129,9 +144,102 @@ class UnidadesMedidas extends Component
     }
        public function eliminarMedida($id)
     {
-          $user = Medida::find($id);
-            $user->delete();
+          $medida = Medida::find($id);
+            $medida->delete();
             $this->emit('info',['mensaje' => 'Unidad de Medida Eliminado Correctamente']);
 
+    }
+
+    //CONVERSIONES
+    public function conversion($id)
+    {
+          $medi = Medida::with(['conversiones', 'conversiones.medida'])->find($id);
+          $this->medi_id = $id;
+          $ids = $medi->conversiones->pluck('medida_conversion');
+          $this->medida = $medi;
+          $this->conversiones = Medida::select('id', 'unidad')->whereNotIn('id',$ids)->get();
+
+    }
+    public function createCon()
+    {
+    	$this->validate([
+			'medida_conversion'  => 'required',
+			'factor'             => 'required',
+			// 'operacion'          => 'required',
+        ],[
+			'medida_conversion.required' => 'No has seleccionado la unidad',
+			'factor.required'            => 'No has agregado el factor de conversion',
+			// 'operacion.required'         => 'No has seleccionado la operacion de conversion',
+    ]);  
+		$conversion                    = new ConversionUnidad;
+		$conversion->medida_base       = $this->medi_id;
+		$conversion->medida_conversion = $this->medida_conversion;
+		$conversion->factor            = $this->factor;
+		// $conversion->accion            = $this->operacion;
+		$conversion->save();
+
+		$this->medida_conversion = '';
+        $this->emit('info',['mensaje' => 'Conversion Creada Correctamente']);
+        // $this->resetConversiones();
+		$this->conversion($this->medi_id);
+    }
+    public function resetConversiones()
+    {
+			$this->medida            = null;
+			$this->conversiones      = [];
+			$this->medida_conversion = '';
+			$this->factor            = null;
+			$this->operacion         = '';
+			$this->conversion        = null;
+			$this->conversion_id       = null;
+			$this->editConversion    = false;  
+		$this->editMode           = false;
+
+    }
+    public function cancelEdit()
+    {
+    		$this->medida_conversion = '';
+			$this->factor            = null;
+			$this->operacion         = '';
+			$this->conversion        = null;
+			$this->conversion_id       = null;
+			$this->editConversion    = false;
+		$this->editMode           = false;
+
+    }
+    public function editarConversion($index)
+    {
+		$this->editConversion    = true;
+		$this->conversion        = $this->medida->conversiones[$index]->medida->unidad;
+		$this->conversion_id       = $this->medida->conversiones[$index]->id;
+		$this->medida_conversion =  $this->medida->conversiones[$index]->medida_conversion;
+		$this->factor            =  $this->medida->conversiones[$index]->factor;
+		// $this->operacion         =  $this->medida->conversiones[$index]->accion;
+    }
+    public function updateConversion()
+    {
+    	  	$this->validate([
+			'factor'             => 'required',
+			// 'operacion'          => 'required',
+        ],[
+			'factor.required'            => 'No has agregado el factor de conversion',
+			// 'operacion.required'         => 'No has seleccionado la operacion de conversion',
+    ]);  
+
+    	$conversion                    = ConversionUnidad::find($this->conversion_id);
+		$conversion->factor            = $this->factor;
+		// $conversion->accion            = $this->operacion;
+		$conversion->save();
+        $this->resetConversiones();
+		$this->conversion($this->medi_id);
+		$this->editConversion    = false;
+
+
+    }
+    public function eliminarConversion($index, $id)
+    {
+    	$conversion  = ConversionUnidad::find($id);
+    	$conversion->delete();
+    	$this->conversion($index);
     }
 }

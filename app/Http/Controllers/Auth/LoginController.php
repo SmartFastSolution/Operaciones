@@ -61,14 +61,14 @@ class LoginController extends Controller
 
     public function authenticated($request , $user){
 
-      $this->verificarEstado($user);
+      // $this->verificarEstado($user);
   if ($user->estado == 'off') {
 
     Auth::guard()->logout();
 
     $request->session()->invalidate();
 
-    return redirect('/login')->withInput()->with('message', 'Tu cuenta esta desactivada por favor comunicate con el administrador');
+    return redirect('/login')->withInput()->with('message', 'Tu cuenta esta desactivada, por favor comunícate con el administrador');
   }
 
   $user->access_at = Carbon::now();

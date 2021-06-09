@@ -24,7 +24,7 @@
 								<option value="nombres">Nombre</option>
 								<option value="email">Correo</option>
 								<option value="cedula">Cedula</option>
-								<option value="telefono">Cedula</option>
+								<option value="telefono">Telefono</option>
 							</select>
 							
 						</div>
@@ -123,9 +123,11 @@
 						</table>
 					</div>
 				</div>
+				<div class="row justify-content-center">
+					{!! $data->links() !!}
+					
+				</div>
 			</div>
 		</div>
 	</div>
-	{!! $data->links() !!}
-	{{-- {{ $data->links() }} --}}
 </div>

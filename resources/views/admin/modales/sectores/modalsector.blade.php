@@ -3,7 +3,11 @@
   <div class="modal-dialog modal-md" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalCenterTitle">Crear Sector</h5>
+        <h5 class="modal-title" id="exampleModalCenterTitle"> @if ($editMode)
+          Actualizar
+          @else
+          Crear
+        @endif Sector</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" wire:click="resetInput">
         <span aria-hidden="true">&times;</span>
         </button>
@@ -19,7 +23,7 @@
             @enderror
           </div>
           <div class="form-group col-md-12">
-            <label for="inputEmail4">Descripcion</label>
+            <label for="inputEmail4">Descripción</label>
             <textarea name="" id="" cols="30" rows="10" wire:model.defer="descripcion_sector" class="form-control @error('descripcion_sector') is-invalid @enderror"></textarea>
             @error('descripcion_sector')
             <p class="error-message text-danger font-weight-bold">{{ $message }}</p>

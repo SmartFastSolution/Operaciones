@@ -17,7 +17,7 @@ class CreateIngresosTable extends Migration
             $table->id();
             $table->string('codigo')->nullable();
             $table->text('descripcion')->nullable();
-            $table->float('total_ingreso')->nullable();
+            $table->float('total_ingreso', 10,3)->nullable();
             $table->timestamps();
         });
 
@@ -26,7 +26,8 @@ class CreateIngresosTable extends Migration
             $table->unsignedBigInteger('ingreso_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('cantidad');
-            $table->float('total');
+            $table->float('precio', 10,3);
+            $table->float('total', 10,3);
             $table->foreign('ingreso_id')->references('id')->on('ingresos')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->timestamps();

@@ -41,7 +41,7 @@
 						<span class="float-left">
 							Total Ingreso
 						</span>
-						<span class="float-right text-muted">
+						<span class="float-right badge badge-info">
 							{{ number_format($ingreso->total_ingreso, 2) }}
 						</span>
 					</p>
@@ -50,31 +50,34 @@
 		</div>
 	</div>
 	<div class="col-12 col-md-12 col-lg-8">
-		<div class="card" style="height: 850px">
+		<div class="card">
 			<div wire:ignore.self class="padding-20">
 				<div wire:ignore.self  class="tab-content tab-bordered" id="myTab3Content">
 					<div class="tab-pane fade show active" id="estudiante" role="tabpanel" aria-labelledby="estudiante-tab2" wire:ignore.self>
 						<h3 class="text-center font-weight-bold text-danger">Productos</h3>
-						<table class="table table-striped">
+						<div class="table-responsive" style="overflow-y: scroll; height: 500px" >
+							<table class="table table-striped">
 							<thead>
 								<tr>
-									<th>Nombre</th>
-									<th>Cantidad</th>
-									<th>Total</th>
+									<th class="">Nombre</th>
+									<th class="text-center">Cantidad</th>
+									<th class="text-center">Total</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach($ingreso->productos as $producto)
 								<tr>
-									<td><a  class="btn-link">{{ $producto->nombre }}</a></td>
-									<td>{{ $producto->pivot->cantidad }}</td>
-									<td class="text-right">{{ number_format($producto->pivot->total,2) }}</td>
+									<td class=""><a  class="btn-link">{{ $producto->nombre }}</a></td>
+									<td class="text-center">{{ $producto->pivot->cantidad }} ({{ $producto->medida->simbolo }})</td>
+									<td class="text-center">{{ number_format($producto->pivot->total,2) }}</td>
 								</tr>
 								@endforeach
 							</tbody>
 						</table>
 						<div class="row justify-content-center">
 						</div>
+						</div>
+					
 					</div>
 				</div>
 			</div>

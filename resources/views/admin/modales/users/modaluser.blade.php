@@ -3,7 +3,11 @@
   <div class="modal-dialog modal-xl " role="document">
     <div class="modal-content bg-secondary">
       <div class="modal-header">
-        <h5 class="modal-title text-dark" id="exampleModalCenterTitle">Crear Usuario</h5>
+        <h5 class="modal-title text-dark" id="exampleModalCenterTitle">@if ($editMode)
+          Actualizar
+          @else 
+          Crear
+        @endif  Usuario</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" wire:click="resetInput">
         <span aria-hidden="true">&times;</span>
         </button>

@@ -10,7 +10,7 @@
 @section('content')
 @section('titulo', '| Administrar Productos')
 <div>
-	<h1 class="text-danger text-center">Administracion de Productos</h1>
+	<h1 class="text-danger text-center">Administración de Productos</h1>
 	@livewire('coordinador.producto.productos')
 </div>
 @endsection

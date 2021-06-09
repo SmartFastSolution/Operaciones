@@ -10,19 +10,6 @@
 					<img alt="image" src="{{ Avatar::create($user->nombres)->setFontSize(35)->setChars(4) }}" class="rounded-circle profile-widget-picture">
 					@endif
 					<div class="profile-widget-items">
-						<div class="profile-widget-item">
-							<div class="profile-widget-item-label">Talleres</div>
-							{{-- <div class="profile-widget-item-value">{{ $user->tallers->count() }}</div> --}}
-						</div>
-						<div class="profile-widget-item">
-							<div class="profile-widget-item-label">Followers</div>
-							<div class="profile-widget-item-value">9,3K</div>
-						</div>
-						<div class="profile-widget-item">
-							<div class="profile-widget-item-label">Following</div>
-							<div class="profile-widget-item-value">3,7K</div>
-						</div>
-					</div>
 				</div>
 				<div class="profile-widget-description pb-0">
 					<div class="profile-widget-name text-center"> @role('super-admin') Super Admin @endrole @role('admin') Administrador @endrole @role('coordinador') Coordinador @endrole <div class="text-muted d-inline font-weight-normal">
@@ -34,6 +21,8 @@
 				@endisset</p>
 			</div>
 		</div>
+	
+	</div>
 		<div class="card">
 			<div class="card-header">
 				<h4>Detalles</h4>
@@ -48,18 +37,18 @@
 							{{ $documentos->count() }}
 						</span>
 					</p>
-						<p class="clearfix">
+					<p class="clearfix">
 						<span class="float-left">
 							Imagenes
 						</span>
 						<span class="float-right text-muted">
 							{{ $imagenes->count() }}
 						</span>
-					</p>		
+					</p>
 				</div>
 			</div>
 		</div>
-	</div>
+</div>
 	<div class="col-12 col-md-12 col-lg-8">
 		<div class="card" >
 			<div wire:ignore.self class="padding-20">
@@ -68,7 +57,7 @@
 						<a wire:ignore class="nav-link active" id="personales-tab2" data-toggle="tab" href="#personales" role="tab" aria-selected="true">Personales</a>
 					</li>
 					<li class="nav-item">
-						<a wire:ignore class="nav-link" id="mapas-tab2" data-toggle="tab" href="#mapas" role="tab" aria-selected="false"> Ubicacion Georeferenciada</a>
+						<a wire:ignore class="nav-link" id="mapas-tab2" data-toggle="tab" href="#mapas" role="tab" aria-selected="false"> Ubicación Georeferenciada</a>
 					</li>
 					<li class="nav-item">
 						<a wire:ignore class="nav-link" id="avatar-tab2" data-toggle="tab" href="#avatar" role="tab" aria-selected="false"> Avatar</a>
@@ -100,14 +89,25 @@
 								</div>
 								<div class="form-group col-lg-6">
 									<label for="">Sector</label>
-									<input type="text" class="form-control" v-model="sector">
+									<model-list-select :list="options"
+									v-model="sector"
+									class="form-control"
+									option-value="id"
+									option-text="nombre"
+									placeholder="Elije Tu Sector"
+									@input="onSelect">
+									</model-list-select>
+									{{-- <model-select :options="options" v-model="sector"
+									placeholder="ELEGIR CUENTA">
+									</model-select> --}}
+									{{-- <input type="text" class="form-control" v-model="sector"> --}}
 								</div>
 								<div class="form-group col-lg-12">
-									<label for="">Direccion</label>
+									<label for="">Dirección</label>
 									<textarea name=" " id="" cols="30" rows="10"  v-model="direccion" class="form-control">{{$user->domicilio }}</textarea>
 								</div>
-									<div class="form-group col-lg-12">
-									<label for="">Horario de Atencion</label>
+								<div class="form-group col-lg-12">
+									<label for="">Horario de Atención</label>
 									<input type="text" class="form-control" v-model="horario_atencion">
 								</div>
 								<div class="form-group col-lg-12">
@@ -126,11 +126,11 @@
 						</div>
 						
 					</div>
-					<div class="tab-pane fade" id="contrasena" role="tabpanel" aria-labelledby="contrasena-tab2">
+					<div class="tab-pane fade" id="contrasena" wire:ignore.self role="tabpanel" aria-labelledby="contrasena-tab2">
 						@livewire('component.password')
 					</div>
 					<div wire:ignore class="tab-pane fade" id="mapas" role="tabpanel" aria-labelledby="mapas-tab2">
-						<h2 class="text-center font-weight-bold text-danger">Marcar la Ubicacion en el Mapa</h2>
+						<h2 class="text-center font-weight-bold text-danger">Marcar la Ubicación en el Mapa</h2>
 						<div id="mapa">
 							<gmap-map
 								:center="center"
@@ -148,7 +148,7 @@
 								></gmap-marker>
 							</gmap-map>
 							<div class="row justify-content-center mt-2">
-								<a href="#" @click.prevent="guardarUbicacion" class="btn btn-primary">GUARDAR UBICACION</a>
+								<a href="#" @click.prevent="guardarUbicacion" class="btn btn-primary">GUARDAR UBICACIÓN</a>
 							</div>
 						</div>
 						
@@ -206,7 +206,7 @@
 								<thead>
 									<tr>
 										<th>Nombre</th>
-										<th>Extension</th>
+										<th>Extensión</th>
 										<th  colspan="2" class="text-center">Acciones</th>
 									</tr>
 								</thead>
@@ -223,8 +223,9 @@
 					</div>
 					<div class="tab-pane fade" id="imagenes" role="tabpanel" aria-labelledby="imagenes-tab2" wire:ignore>
 						<div id="galeria" class="row justify-content-center">
-						  <img class="image" v-for="(image, i) in images" :src="image" @click="onClick(i)">
-						  <vue-gallery-slideshow :images="images" :index="index" @close="index = null"></vue-gallery-slideshow>
+							<img class="image" v-for="(image, i) in images" :src="image" @click="onClick(i)">
+							<vue-gallery-slideshow :images="images" :index="index" @close="index = null"></vue-gallery-slideshow>
+							
 						</div>
 					</div>
 				</div>

@@ -15,6 +15,10 @@ class CreateTipoRequerimientosTable extends Migration
     {
         Schema::create('tipo_requerimientos', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->string('parametrizacion');
+            $table->string('descripcion')->nullable();
+            $table->enum('estado',['on','off'])->nullable();
             $table->timestamps();
         });
     }

@@ -16,9 +16,9 @@
 						<div class="col-lg-2 col-sm-12 mt-2">
 							<select wire:model="orderBy" class="custom-select " id="grid-state">
 								<option value="id">ID</option>
-								<option value="nombre">Unidad</option>
+								<option value="unidad">Unidad</option>
 								<option value="simbolo">Simbolo</option>
-								<option value="descripcion">Descripcion</option>
+								<option value="descripcion">Descripción</option>
 							</select>
 							
 						</div>
@@ -54,9 +54,9 @@
 									<th class="px-4 py-2 text-center ">Magnitud</th>
 									<th class="px-4 py-2 text-center ">Unidad</th>
 									<th class="px-4 py-2 text-center ">Icono</th>
-									<th class="px-4 py-2 text-center ">Descripcion</th>
+									<th class="px-4 py-2 text-center ">Descripción</th>
 									<th class="px-4 py-2 text-center ">Estado</th>
-									<th class="px-4 py-2 text-center " colspan="2">Accion</th>
+									<th class="px-4 py-2 text-center " colspan="2">Acción</th>
 								</tr>
 							</thead>
 							<tbody class="text-center">
@@ -74,6 +74,11 @@
 											badge-danger
 										@endif">{{ $medida->estado }}</span>
 										
+									</td>
+									<td class="p-0 text-center" width="50">
+										<a class="btn btn-info text-dark" data-toggle="modal" data-target="#createConversion" wire:click.prevent="conversion({{ $medida->id }})">
+											<i class="fa fa-map"></i>
+										</a>
 									</td>
 									<td class="p-0 text-center" width="50">
 										<a class="btn btn-warning text-dark" data-toggle="modal" data-target="#createMedida" wire:click.prevent="editMedida({{ $medida->id }})">
@@ -98,8 +103,11 @@
 						</table>
 					</div>
 				</div>
+				<div class="row justify-content-center">
+					{!! $medidas->links() !!}
+					
+				</div>
 			</div>
 		</div>
 	</div>
-	{!! $medidas->links() !!}
 </div>

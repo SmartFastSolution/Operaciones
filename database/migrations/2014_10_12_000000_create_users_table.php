@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('username')->unique();
             $table->string('nombres');
             $table->string('domicilio')->nullable();
-            $table->string('sector')->nullable();
+            $table->unsignedBigInteger('sector_id')->nullable();
             $table->string('telefono')->nullable();
             $table->string('celular')->nullable();
             $table->string('email')->unique();
@@ -28,12 +28,13 @@ class CreateUsersTable extends Migration
             $table->text('detalle_actividad')->nullable();    
             $table->string('horario_atencion')->nullable();
             $table->string('avatar')->nullable();
-            $table->integer('latitud')->nullable();        
-            $table->integer('longitud')->nullable();        
+            $table->double('latitud')->nullable();        
+            $table->double('longitud')->nullable();        
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('activated_at')->nullable();
             $table->timestamp('access_at')->nullable();
             $table->enum('estado',['on','off'])->nullable();
+            $table->foreign('sector_id')->references('id')->on('sectors')->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

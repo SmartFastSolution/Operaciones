@@ -24,6 +24,7 @@
 <script src="https://cdn.ckeditor.com/4.10.0/full/ckeditor.js"></script>
 <script type="text/javascript">
 	let user = @json(Auth::user());
+	let sectores = @json($sectores);
 </script>
 <script type="text/javascript" src="{{ asset('js/perfil.js') }}"></script>
 @endsection

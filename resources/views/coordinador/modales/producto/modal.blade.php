@@ -1,8 +1,8 @@
 <div wire:ignore.self class="modal fade" id="crearProducto" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="crearProductoLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content bg-info">
+    <div class="modal-content ">
       <div class="modal-header">
-        <h5 class="modal-title text-light" id="exampleModalCenterTitle">Crear Producto</h5>
+        <h5 class="modal-title" id="exampleModalCenterTitle"> @if ($editMode) Actualizar @else Crear @endif Producto</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close" wire:click="resetInput">
         <span aria-hidden="true">&times;</span>
         </button>
@@ -41,8 +41,8 @@
 
           </div>
           <div class="form-group col-lg-4 col-sm-12">
-            <label for="">Presentacion</label>
-            <input type="text" class="form-control" wire:model.defer="presentacion_producto">
+            <label for="">Presentación</label>
+            <input type="number" class="form-control" wire:model.defer="presentacion_producto">
             @error('presentacion_producto') <span class="error text-danger">{{ $message }}</span> @enderror
 
           </div>

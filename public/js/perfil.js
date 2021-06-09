@@ -8,6 +8,7 @@
 		actividad_personal:'',
 		detalle_actividad:'',
 		horario_atencion:'',
+		options: sectores,
 		        config: {
         toolbar: [
           ['Bold', 'Italic', 'Underline', 'Strike', 'Styles', 'TextColor', 'BGColor', 'UIColor' , 'JustifyLeft' , 'JustifyCenter' , 'JustifyRight' , 'JustifyBlock' , 'BidiLtr' , 'BidiRtl' , 'NumberedList' , 'BulletedList' , 'Outdent' , 'Indent' , 'Blockquote' , 'CreateDiv','Format','Font','FontSize']
@@ -19,12 +20,15 @@
 	  mounted: function() {
 			this.telefono           = user.telefono;
 			this.direccion          = user.domicilio;
-			this.sector             = user.sector;
+			this.sector             = user.sector_id;
 			this.actividad_personal = user.actividad_personal;
 			this.detalle_actividad = user.detalle_actividad;
 			this.horario_atencion   = user.horario_atencion;
 	  },
 	  methods:{
+	  	onSelect(){
+	  		console.log('seleccionado')
+	  	},
 	  	  getImage(event){
 		  	console.log('hola')
                 //Asignamos la imagen a  nuestra data

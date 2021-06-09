@@ -7,14 +7,17 @@ use App\Product;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use App\Exports\ProductosExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Productos extends Component
 {
 	use WithPagination;
     use WithFileUploads;
 	protected $paginationTheme = 'bootstrap';
-	protected $listeners       = ['eliminarUser'];
-	protected $queryString     =['search' => ['except' => ''],
+	protected $listeners       = ['eliminarProducto'];
+	protected $queryString     =
+	['search' => ['except' => ''],
     'page'
 ];
 	public $perPage    = 10;
@@ -22,6 +25,7 @@ class Productos extends Component
 	public $orderBy    = 'products.id';
 	public $orderAsc   = true;
 	public $status     = true;
+	public $statu    = '';
 	public $porcentual = false;
 	public $estado     ='on';
 	public $unidad     ='';
@@ -36,7 +40,7 @@ class Productos extends Component
 		$cuenta_producto, $iva_producto;
     public function render()
     {
-    	$this->medidas = Medida::select('id', 'unidad')->get();
+    	$this->medidas = Medida::select('id', 'unidad')->where('estado', 'on')->get();
     	 $productos = Product::join('medidas', 'products.medida_id', '=', 'medidas.id')->where(function ($query) {
                     $query->where('products.nombre', 'like', '%'.$this->search.'%')
                         ->orWhere('products.presentacion', 'like', '%'.$this->search.'%')
@@ -45,9 +49,14 @@ class Productos extends Component
                         ->orWhere('products.iva', 'like', '%'.$this->search.'%')
                         ->orWhere('products.cuenta_contable', 'like', '%'.$this->search.'%');
                  	})
-    	 			->where(function ($query) {
+    	 		->where(function ($query) {
                     if ($this->unidad !== '') {
                        $query->where('medidas.id',$this->unidad);
+                    	}
+                 	})
+               	->where(function ($query) {
+                    if ($this->statu !== '') {
+                       $query->where('products.estado',$this->statu);
                     	}
                  	})
                 ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
@@ -58,7 +67,7 @@ class Productos extends Component
       public function crearProducto()
     {
     	$this->validate([
-			'foto'                  => 'required|image|max:1024', // 1MB Max
+			'foto'                  => 'required|image|max:5120', // 1MB Max
 			'nombre_producto'       => 'required',
 			'presentacion_producto' => 'required',
 			'medida_id'             => 'required',
@@ -131,6 +140,12 @@ class Productos extends Component
 				$this->porcentual            = $producto->porcentual;
 				$this->iva_producto          = $producto->iva;
 				$this->cuenta_producto       = $producto->cuenta_contable;
+
+				if ($producto->estado  == 'on') {
+						$this->status = true;
+				}else{ 
+						$this->status = false;
+				}
 				$this->editMode = true;
    	}
    	public function updateProducto()
@@ -165,7 +180,13 @@ class Productos extends Component
 				$producto->precio_compra   = $this->compra_producto;
 				$producto->precio_venta    = $this->venta_producto;
 				$producto->porcentual      = $this->porcentual;
+				if ($this->porcentual) {
 				$producto->iva             = $this->iva_producto;
+					
+				}else{
+				$producto->iva             = null;
+
+				}
 				$producto->cuenta_contable = $this->cuenta_producto;
 				if ($this->foto) {
             	$image_path = public_path().$producto->foto;
@@ -190,4 +211,48 @@ class Productos extends Component
 
 
    	}
+   	    public function estadochange($id)
+    {
+        $estado =Product::find($id);
+        if ($estado->estado == 'on') {
+            $estado->estado ='off';
+            $estado->save();
+         	$this->emit('info',['mensaje' => 'Estado Desactivado Actualizado']);
+         }else {
+            $estado->estado = 'on';
+         	$estado->save();
+        	$this->emit('info',['mensaje' => 'Estado Activado Actualizado']);
+         }
+    }
+    public function eliminarProducto($id)
+    {
+    	$producto = Product::find($id);
+    	$producto->delete();
+    }
+       public function generaExcel()
+    {
+         $productos = Product::join('medidas', 'products.medida_id', '=', 'medidas.id')->where(function ($query) {
+                    $query->where('products.nombre', 'like', '%'.$this->search.'%')
+                        ->orWhere('products.presentacion', 'like', '%'.$this->search.'%')
+                        ->orWhere('products.precio_compra', 'like', '%'.$this->search.'%')
+                        ->orWhere('products.precio_venta', 'like', '%'.$this->search.'%')
+                        ->orWhere('products.iva', 'like', '%'.$this->search.'%')
+                        ->orWhere('products.cuenta_contable', 'like', '%'.$this->search.'%');
+                 	})
+    	 		->where(function ($query) {
+                    if ($this->unidad !== '') {
+                       $query->where('medidas.id',$this->unidad);
+                    	}
+                 	})
+               	->where(function ($query) {
+                    if ($this->statu !== '') {
+                       $query->where('products.estado',$this->statu);
+                    	}
+                 	})
+                ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
+                ->select('products.*', 'medidas.unidad as unidad')
+                ->get(); 
+
+        return Excel::download(new ProductosExport($productos), 'productos.xlsx');
+        }
 }

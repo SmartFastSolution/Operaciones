@@ -6,7 +6,7 @@
 @section('sectores', 'active')
 @section('titulo', '| Administrar Usuarios')
 <div id="confirmareliminar" >
-	<h1 class="text-danger text-center">Administracion de Sectores</h1>
+	<h1 class="text-danger text-center">Administración de Sectores</h1>
 	<br>
 	<div class="col-sm-2 ml-auto">
 	</div>

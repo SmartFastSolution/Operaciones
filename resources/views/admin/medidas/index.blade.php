@@ -6,7 +6,7 @@
 @section('medidas', 'active')
 @section('titulo', '| Unidades de Medidas')
 <div id="confirmareliminar" >
-	<h1 class="text-danger text-center">Administracion de Unidades de Medidas</h1>
+	<h1 class="text-danger text-center">Administración de Unidades de Medidas</h1>
 	<br>
 	@livewire('admin.medida.unidades-medidas')
 </div>

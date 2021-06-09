@@ -42,4 +42,13 @@ class User extends Authenticatable
        public function documentos(){
         return $this->morphMany('App\Document', 'documentable');
     }
+
+      public function requerimientos()
+     {
+         return $this->hasMany('App\Requerimiento', 'operador_id');
+     }
+      public function sector()
+     {
+         return $this->belongsTo('App\Sector', 'sector_id');
+     }
 }

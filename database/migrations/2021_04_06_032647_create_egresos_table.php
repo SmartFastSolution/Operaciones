@@ -17,14 +17,15 @@ class CreateEgresosTable extends Migration
             $table->id();
             $table->string('codigo')->nullable();
             $table->text('descripcion')->nullable();
-            $table->float('total_egreso')->nullable();
+            $table->float('total_egreso', 10,3)->nullable();
             $table->timestamps();
         });
         Schema::create('egreso_product', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('egreso_id');
             $table->unsignedBigInteger('product_id');
-            $table->integer('cantidad');
+            $table->float('cantidad', 10,3);
+            $table->float('cantidad_real',10,3);
             $table->float('total');
             $table->foreign('egreso_id')->references('id')->on('egresos')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');

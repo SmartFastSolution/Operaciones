@@ -204,6 +204,7 @@ class Usuarios extends Component
     public function generaExcel()
     {
         $datos = User::where('users.id', '!=', 1)
+                ->leftJoin('sectors', 'users.sector_id', '=', 'sectors.id')
                 ->where(function ($query) {
                        $query->where('users.nombres', 'like', '%'.$this->search.'%')
                         ->orWhere('users.email', 'like', '%'.$this->search.'%');
@@ -213,6 +214,7 @@ class Usuarios extends Component
                        $query->role($this->findrole); 
                     }
                  })
+                ->select('users.*', 'sectors.nombre as sector')
                 ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
                 ->get(); 
 

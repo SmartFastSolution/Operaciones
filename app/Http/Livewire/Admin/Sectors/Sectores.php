@@ -63,6 +63,8 @@ class Sectores extends Component
     {
 		$this->nombre_sector      = null;
 		$this->estado             = "on";
+    $this->editMode           = false;
+    
 		$this->descripcion_sector = null;
     }
     public function estadochange($id)

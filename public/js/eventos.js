@@ -4,7 +4,7 @@
 
     }
      iziToast.success({
-                title: 'ManquiPES',
+                title: 'Operaciones',
                 message: data.mensaje,
                 position: 'topRight'
               });
@@ -16,7 +16,7 @@
 
     }
      iziToast.error({
-                title: 'ManquiPES',
+                title: 'Operaciones',
                 message: data.mensaje,
                 position: 'topRight'
               });
@@ -28,7 +28,7 @@
 
     }
      iziToast.info({
-                title: 'ManquiPES',
+                title: 'Operaciones',
                 message: data.mensaje,
                 position: 'topRight'
               });
@@ -40,7 +40,7 @@
 
     }
      iziToast.warning({
-                title: 'ManquiPES',
+                title: 'Operaciones',
                 message: data.mensaje,
                 position: 'topRight'
               });

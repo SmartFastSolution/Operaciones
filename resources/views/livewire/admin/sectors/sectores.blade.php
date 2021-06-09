@@ -17,7 +17,7 @@
 							<select wire:model="orderBy" class="custom-select " id="grid-state">
 								<option value="id">ID</option>
 								<option value="nombre">Nombre</option>
-								<option value="descripcion">Descripcion</option>
+								<option value="descripcion">Descripción</option>
 							</select>
 							
 						</div>
@@ -51,9 +51,9 @@
 							<thead class="">
 								<tr class="">
 									<th class="px-4 py-2 text-center ">Nombre</th>
-									<th class="px-4 py-2 text-center ">Descripcion</th>
+									<th class="px-4 py-2 text-center ">Descripción</th>
 									<th class="px-4 py-2 text-center ">Estado</th>
-									<th class="px-4 py-2 text-center " colspan="2">Accion</th>
+									<th class="px-4 py-2 text-center " colspan="2">Acción</th>
 								</tr>
 							</thead>
 							<tbody class="text-center">
@@ -92,9 +92,11 @@
 							
 						</table>
 					</div>
+					<div class="row justify-content-center">
+						{!! $sectores->links() !!}
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-	{!! $sectores->links() !!}
 </div>

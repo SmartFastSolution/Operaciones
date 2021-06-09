@@ -17,12 +17,13 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('medida_id')->nullable();
             $table->string('nombre')->nullable();
-            $table->bigInteger('presentacion')->nullable();
+            $table->float('presentacion')->nullable();
             $table->float('precio_compra')->nullable();
             $table->float('precio_venta')->nullable();
             $table->boolean('porcentual')->nullable();
             $table->integer('iva')->nullable();
-            $table->integer('stock')->nullable()->default(0);
+            $table->float('stock', 10,2)->nullable()->default(0);
+            $table->float('cantidad')->nullable()->default(0);
             $table->string('cuenta_contable')->nullable();
             $table->string('foto')->nullable();
             $table->enum('estado',['on','off'])->nullable();

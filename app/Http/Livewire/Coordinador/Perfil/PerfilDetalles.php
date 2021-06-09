@@ -50,13 +50,13 @@ class PerfilDetalles extends Component
     }
     public function guardarDatos($datos)
     {   
-		$user                     = Auth::user();
-		$user->telefono           = $datos['telefono'];
-		$user->domicilio          = $datos['direccion'];
-        $user->sector             = $datos['sector'];
-		$user->actividad_personal = $datos['actividad_personal'];
-		$user->detalle_actividad = $datos['detalle_actividad'];
-		$user->horario_atencion   = $datos['horario_atencion'];
+        $user                     = Auth::user();
+        $user->telefono           = $datos['telefono'];
+        $user->domicilio          = $datos['direccion'];
+        $user->sector_id          = $datos['sector'];
+        $user->actividad_personal = $datos['actividad_personal'];
+        $user->detalle_actividad  = $datos['detalle_actividad'];
+        $user->horario_atencion   = $datos['horario_atencion'];
     	$user->save();
 
         $this->emit('success',['mensaje' => 'Datos Actualizados Correctamente']);
@@ -84,19 +84,15 @@ class PerfilDetalles extends Component
         $this->emit('success',['mensaje' => 'Avatar Actualizado Correctamente']);
         $this->foto = null;
 
-
-
     }
     public function guardarDocumentos()
     {
          $this->validate([
-            'foto.*' => 'max:51.200', 
+            'foto.*' => 'max:51200', 
         ]);
-
         foreach ($this->photos as $photo) {
         $nombre   = time().'_'.$photo->getClientOriginalName();
         $urldocumento  = '/documentos/'.$nombre;
-
         $photo->storeAs('documentos',  $nombre, 'public_upload');
         $user = Auth::user();
         $documento = new Document(['nombre'=> $photo->getClientOriginalName(), 'extension'=> pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo'=>$urldocumento]);
@@ -105,7 +101,6 @@ class PerfilDetalles extends Component
         $this->photos = [];
         $this->emit('success',['mensaje' => 'Archivos Guardados Correctamente', 'modal' => '#cargarArchivo']);
         $this->enviarImagenes();
-
     }
     public function resetInput()
     {
@@ -118,6 +113,5 @@ class PerfilDetalles extends Component
         unlink($image_path);
         $documento->delete();
         $this->emit('info',['mensaje' => 'Archivo Eliminado Correctamente']);
-
     }
 }
