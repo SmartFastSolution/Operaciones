@@ -32,16 +32,7 @@
               <li><a href="#" class="nav-link nav-link-lg fullscreen-btn">
                 <i data-feather="maximize"></i>
               </a></li>
-              <li>
-                <form class="form-inline mr-auto">
-                  <div class="search-element">
-                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" data-width="200">
-                    <button class="btn" type="submit">
-                    <i class="fas fa-search"></i>
-                    </button>
-                  </div>
-                </form>
-              </li>
+        
                
               {{-- <li class="nav-link text-dark font-weight-bold"><a href=" " class="nav-link">CALENDARIO</a> </li> --}}
             </ul>

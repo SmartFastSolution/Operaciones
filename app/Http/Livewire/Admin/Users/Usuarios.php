@@ -91,7 +91,7 @@ class Usuarios extends Component
 		$user->cedula       = $this->reCedula;
 		$user->email        = $this->reEmail;
 		$user->estado       = 'on';
-		$user->activated_at =Carbon::now();
+		$user->activated_at =Carbon::now(); //Cambiar esta logica automatica, por una fecha manual agregada al registrar al usuario
 		$user->password     = Hash::make($clave); 
 		$user->save();
 
@@ -99,7 +99,7 @@ class Usuarios extends Component
         $this->resetInput();
         $this->emit('success',['mensaje' => 'Usuario Registrado Correctamente', 'modal' => '#createUser']);
 
-        // Mail::to($user->email)->send(new UserRegister($user, $clave));
+        Mail::to($user->email)->send(new UserRegister($user, $clave));
 
     }
         public function resetInput()
@@ -128,8 +128,6 @@ class Usuarios extends Component
             $this->rol         = "coordinador";
         }elseif ($user->hasRole('operador')) {
             $this->rol         = "operador";
-        }elseif ($user->hasRole('admin')) {
-            $this->rol         = "admin";
         }
     }
         public function updateUser()

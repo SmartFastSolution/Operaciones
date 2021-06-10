@@ -1,6 +1,5 @@
 <div>
 	@include('admin.modales.users.modaluser')
-	@include('admin.modales.users.importusermodal')
 	<button type="button" class="btn btn-primary mb-2" data-toggle="modal" data-target="#createUser" ><i class="fa fa-user-plus"></i>
 	Crear Nuevo Usuario
 	</button>
@@ -38,7 +37,6 @@
 						<div class="col-lg-3 col-sm-12 mt-2">
 							<select wire:model="findrole" class="custom-select " id="grid-state">
 								<option value="">Roles</option>
-								<option value="admin">Administrador</option>
 								<option value="coordinador">Coordiandor</option>
 								<option value="operador">Operador</option>
 							</select>
@@ -79,8 +77,6 @@
 									<td class="p-0 text-center">@if ($user->hasRole('operador'))
 										<div class="badge badge-success badge-shadow">Operador</div>
 										
-										@elseif ($user->hasRole('admin'))
-										<div class="badge badge-info badge-shadow">Administrador</div>
 										@elseif ($user->hasRole('coordinador'))
 										<div class="badge badge-danger badge-shadow">Coordinador</div>
 										@endif

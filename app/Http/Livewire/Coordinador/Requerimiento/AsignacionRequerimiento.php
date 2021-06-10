@@ -45,9 +45,9 @@ class AsignacionRequerimiento extends Component
     $this->fechaini2 = date('Y-m-d');
     $this->fechafin2 = date('Y-m-d');    
     }
-    public function render()
+    function seleccionesMultiples()
     {
-        if ($this->selectioncompleta) {
+         if ($this->selectioncompleta) {
             $this->selectionAll();
         }else{
           $this->selecionados = [];  
@@ -59,6 +59,10 @@ class AsignacionRequerimiento extends Component
           $this->liberados = [];  
         }
 
+    }
+    public function render()
+    {
+       
 
     	$requerimientos = Requerimiento::join('sectors', 'requerimientos.sector_id', '=', 'sectors.id')
     			->join('tipo_requerimientos', 'requerimientos.tipo_requerimiento_id', '=', 'tipo_requerimientos.id')

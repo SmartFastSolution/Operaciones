@@ -44,10 +44,6 @@
 				</div>
 				<div class="card-body">
 					<div class="row">
-						<div class="form-inline mr-1">
-							<label class="mr-1" for="">Seleccionar Todo </label>   <input type="checkbox" class="custom-checkbox" wire:model="selectioncompleta">
-						</div>
-					
 						{{-- <a href="" class="btn btn-outline-primary mr-2" wire:click.prevent="selectionAll()">Selecionar todo</a> --}}
 						<a href="" class="btn btn-danger btn-sm @if ($asignando == true)
 							disabled
@@ -102,7 +98,7 @@
 						<table class="table table-striped">
 							<thead class="">
 								<tr class="">
-									<th class="px-4 py-2 text-center ">Seleccionar</th>
+									<th class="px-4 py-2 text-center "><input type="checkbox" class="custom-checkbox" wire:change="seleccionesMultiples()" wire:model="selectioncompleta"></th>
 									<th class="px-4 py-2 text-center ">Codigo</th>
 									<th class="px-4 py-2 text-center ">Nombre</th>
 									<th class="px-4 py-2 text-center ">Cedula</th>
@@ -115,7 +111,7 @@
 							<tbody>
 								@foreach($requerimientos as $requerimiento)
 								<tr>
-									<td class="text-center"><input type="checkbox" class="custom-radio" value="{{ intval($requerimiento->id) }}" wire:model="selecionados"></td>
+									<td class="text-center"><input type="checkbox" class="custom-radio" value="{{ intval($requerimiento->id) }}" wire:model.defer="selecionados"></td>
 									<td class="text-center">{{ $requerimiento->codigo }}</td>
 									<td class="text-center">{{ $requerimiento->nombres }}</td>
 									<td class="text-center">{{ $requerimiento->cedula }}</td>
@@ -142,9 +138,6 @@
 				</div>
 				<div class="card-body">
 					<div class="row">
-						<div class="form-inline mr-1">
-							<label class="mr-1" for="">Seleccionar Todo </label><input type="checkbox" class="custom-checkbox" wire:model="liberacioncompleta">
-						</div>
 						{{-- <a href="" class="btn btn-outline-primary mr-2" wire:click.prevent="selectionLiberar()">Selecionar todo</a> --}}
 						<a href="" class="btn btn-primary btn-sm"
 							disabled="{{ $asignando2 }}"  wire:click.prevent="liberacionMasiva()">Liberación Masiva</a>
@@ -200,7 +193,7 @@
 						<table class="table table-striped">
 							<thead class="">
 								<tr class="">
-									<th class="px-4 py-2 text-center ">Seleccionar</th>
+									<th class="px-4 py-2 text-center "><input type="checkbox" class="custom-checkbox" wire:change="seleccionesMultiples()" wire:model="liberacioncompleta"></th>
 									<th class="px-4 py-2 text-center ">Codigo</th>
 									<th class="px-4 py-2 text-center ">Operador</th>
 									<th class="px-4 py-2 text-center ">Nombre</th>

@@ -65,7 +65,6 @@
           <div class="col-sm-10">
             <select wire:model="rol" class="custom-select @error('rol') is-invalid @enderror" >
               <option value="" selected disabled="">Elige un Rol</option>
-              <option value="admin">Administrador</option>
               <option value="coordinador">Coordinador</option>
               <option value="operador">Operador</option>
             </select>

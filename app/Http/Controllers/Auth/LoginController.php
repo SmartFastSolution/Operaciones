@@ -43,22 +43,22 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-
+        /**
+         * Funcion para validar la fecha de vencimiento del usuario, se debe crear una consulta condicional donde se valida la fecha de vencimiento, con la fecha actual, si es igual, entonces se desactiva el usuario, caso contrario se continua con el login.
+         * @var int $user
+         */
     public function verificarEstado($user)
     {
-       $datos = User::selectRaw('timestampdiff(DAY, activated_at, curdate()) as dato')->where('id', $user->id)->first();
-       if ($datos->dato >= 12) {
+       
+       $datos = User::selectRaw('timestampdiff(MONTH, activated_at, curdate()) as dato')->where('id', $user->id)->first(); //Consulta Condicional
+
+       if ($datos->dato >= 12) { //Validacion de la consulta
           $user->estado = 'off';
           $user->save();
        }
       
     }
-    // public function redirectTo()
-    // {
-      
-    // }
-
-
+  
     public function authenticated($request , $user){
 
       // $this->verificarEstado($user);
