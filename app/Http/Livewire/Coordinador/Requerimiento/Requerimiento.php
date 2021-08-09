@@ -50,6 +50,11 @@ class Requerimiento extends Component
         $this->fechaini = date('Y-m-d');
         $this->fechafin = date('Y-m-d');
     }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
     public function importExcel()
     {
         $this->validate([

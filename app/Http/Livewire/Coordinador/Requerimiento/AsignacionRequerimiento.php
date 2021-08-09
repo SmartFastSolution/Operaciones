@@ -18,7 +18,6 @@ class AsignacionRequerimiento extends Component
     public $operador_id  = '';
     public $disponible   = '';
     public $selecionados = [];
-    public $liberados    = [];
     public $perPage      = 10;
     public $search       = '';
     public $codigoCatastral       = '';
@@ -36,7 +35,6 @@ class AsignacionRequerimiento extends Component
     public $orderAsc2    = true;
     public $asignando2   = false;
     public $selectioncompleta   = false;
-    public $liberacioncompleta   = false;
 
     public function mount()
     {
@@ -53,16 +51,30 @@ class AsignacionRequerimiento extends Component
             $this->selecionados = [];
         }
 
-        if ($this->liberacioncompleta) {
-            $this->selectionLiberar();
-        } else {
-            $this->liberados = [];
-        }
+        // if ($this->liberacioncompleta) {
+        //     $this->selectionLiberar();
+        // } else {
+        //     $this->liberados = [];
+        // }
+    }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+        $this->selectioncompleta = false;
+        $this->seleccionesMultiples();
+    }
+    public function updatingCodigoCatastral()
+    {
+        $this->resetPage();
+        $this->selectioncompleta = false;
+        $this->seleccionesMultiples();
+    }
+    public function getQueryString()
+    {
+        return [];
     }
     public function render()
     {
-
-
         $requerimientos = Requerimiento::leftJoin('sectors',  'sectors.id',  '=', 'requerimientos.sector_id',)
             ->leftJoin('tipo_requerimientos', 'tipo_requerimientos.id',  '=', 'requerimientos.tipo_requerimiento_id')
             ->where(function ($query) {
@@ -82,25 +94,8 @@ class AsignacionRequerimiento extends Component
             ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
-        $asignados = Requerimiento::leftJoin('sectors',  'sectors.id',  '=', 'requerimientos.sector_id',)
-            ->leftJoin('tipo_requerimientos', 'tipo_requerimientos.id',  '=', 'requerimientos.tipo_requerimiento_id')
-            ->join('users', 'requerimientos.operador_id', '=', 'users.id')
-            ->where(function ($query) {
-                $query->where('requerimientos.nombres', 'like', '%' . $this->search2 . '%')
-                    ->orWhere('requerimientos.codigo', 'like', '%' . $this->search2 . '%')
-                    ->orWhere('requerimientos.cedula', 'like', '%' . $this->search2 . '%');
-            })
-            ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini2, $this->fechafin2])
-            ->where(function ($query) {
-                if ($this->codigoCatastral2 !== '') {
-                    $query->where('requerimientos.codigo_catastral', 'like', '%' . $this->codigoCatastral2 . '%');
-                }
-            })
-            ->where('requerimientos.estado', 'asignado')
-            ->select('requerimientos.*', 'sectors.nombre as sector', 'tipo_requerimientos.nombre as requerimiento', 'users.nombres as operador')
-            ->orderBy($this->orderBy2, $this->orderAsc2 ? 'asc' : 'desc')
-            ->paginate($this->perPage2);
-        return view('livewire.coordinador.requerimiento.asignacion-requerimiento', compact('requerimientos', 'asignados'));
+
+        return view('livewire.coordinador.requerimiento.asignacion-requerimiento', compact('requerimientos'));
     }
     public function cargarOperador($operador)
     {
@@ -123,21 +118,12 @@ class AsignacionRequerimiento extends Component
         $requerimiento->estado = 'asignado';
         $requerimiento->save();
 
+        $this->emitTo('coordinador.requerimiento.liberacion-requerimiento', 'actualizarComponente');
+
 
         $this->disponible = (10 - Requerimiento::where('operador_id', $this->operador_id)->count());
     }
-    public function liberarRequerimiento($id)
-    {
-        $clave = array_search($id, $this->liberados); // $clave = 2;
-        if ($clave !== false or $clave == 0) {
-            unset($this->liberados[$clave]);
-        }
-        $requerimiento              = Requerimiento::find($id);
-        $requerimiento->operador_id = null;
-        $requerimiento->estado      = 'pendiente';
-        $requerimiento->save();
-        $this->disponible = (10 - Requerimiento::where('operador_id', $this->operador_id)->count());
-    }
+
     public function asignacionMasiva()
     {
         $this->validate([
@@ -164,6 +150,7 @@ class AsignacionRequerimiento extends Component
         $this->asignando = false;
         $this->selecionados = [];
         $this->selectioncompleta = false;
+        $this->emitTo('coordinador.requerimiento.liberacion-requerimiento', 'actualizarComponente');
     }
     public function selectionAll()
     {
@@ -189,50 +176,5 @@ class AsignacionRequerimiento extends Component
             $this->selecionados[] = "$re";
         }
         // $this->selecionados = $requerimientos;
-    }
-    public function selectionLiberar()
-    {
-        $requerimientos = Requerimiento::leftJoin('sectors',  'sectors.id',  '=', 'requerimientos.sector_id',)
-            ->leftJoin('tipo_requerimientos', 'tipo_requerimientos.id',  '=', 'requerimientos.tipo_requerimiento_id')
-            ->where(function ($query) {
-                $query->where('nombres', 'like', '%' . $this->search2 . '%')
-                    ->orWhere('codigo', 'like', '%' . $this->search2 . '%')
-                    ->orWhere('cedula', 'like', '%' . $this->search2 . '%');
-            })
-            ->where(function ($query) {
-                if ($this->codigoCatastral2 !== '') {
-                    $query->where('requerimientos.codigo_catastral', 'like', '%' . $this->codigoCatastral2 . '%');
-                }
-            })
-            ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini2, $this->fechafin2])
-            ->select('requerimientos.*', 'sectors.nombre as sector', 'tipo_requerimientos.nombre as requerimiento')
-            ->where('requerimientos.estado', 'asignado')
-            ->pluck('id');
-
-        $this->liberados = [];
-
-        foreach ($requerimientos as $re) {
-            $this->liberados[] = "$re";
-        }
-    }
-    public function liberacionMasiva()
-    {
-        $this->validate([
-            "liberados"    => "required|array|min:1",
-
-        ], [
-            'liberados.required' => 'No has seleccionado ningun requerimiento',
-            // 'liberados.array'    => 'Este operador no se le puede asignar mas de '.$this->disponible.' requerimientos',
-        ]);
-        $this->asignando2 = true;
-        foreach ($this->liberados as $id) {
-            $requerimiento              = Requerimiento::find($id);
-            $requerimiento->operador_id = null;
-            $requerimiento->estado      = 'pendiente';
-            $requerimiento->save();
-        }
-        $this->asignando2 = false;
-        $this->liberados = [];
-        $this->liberacioncompleta = false;
     }
 }
