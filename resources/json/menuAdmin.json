@@ -1,0 +1,106 @@
+{
+    "administrador": [
+        {
+            "url": "usuarios",
+            "name": "Usuarios",
+            "icon": "fas fa-users",
+            "submenu": [
+                {
+                    "route": "usuario.index",
+                    "url": "admin/usuarios",
+                    "name": "Lista de Usuarios"
+                }
+            ]
+        },
+        {
+            "url": "sectores",
+            "name": "Sectores",
+            "icon": "fas fa-map",
+            "submenu": [
+                {
+                    "route": "sector.index",
+                    "url": "admin/sectores",
+                    "name": "Lista de Sectores"
+                }
+            ]
+        },
+        {
+            "url": "medidas",
+            "name": "Medidas",
+            "icon": "fas fa-weight",
+            "submenu": [
+                {
+                    "route": "medida.index",
+                    "url": "admin/unidades-de-medidas",
+                    "name": "Unidades de Medidas"
+                }
+            ]
+        },
+        {
+            "url": "tipos-requerimientos",
+            "name": "T. Requerimientos",
+            "icon": "fas fa-clipboard-list",
+            "submenu": [
+                {
+                    "route": "tipo-requerimiento.index",
+                    "url": "admin/tipos-de-requerimiento",
+                    "name": "T. Requerimiento"
+                }
+            ]
+        }
+
+    ],
+    "coordinador": [
+        {
+            "url": "requerimientos",
+            "name": "Requerimientos",
+            "icon": "fas fa-clipboard-list",
+            "submenu": [
+                {
+                    "route": "coordinador.requerimiento.index",
+                    "url": "coordinador/requerimientos",
+                    "name": "Requerimientos"
+                },
+                {
+                    "route": "coordinador.requerimiento.asignar",
+                    "url": "coordinador/requerimientos/asignacion",
+                    "name": "Asignar Requerimientos"
+                },
+                {
+                    "route": "coordinador.mapa",
+                    "url": "coordinador/mapa",
+                    "name": "Ver Mapa"
+                },
+                {
+                    "route": "coordinador.calendario",
+                    "url": "coordinador/calendario",
+                    "name": "Calendario"
+                }
+
+            ]
+        },
+        {
+            "url": "bodega",
+            "name": "Bodega",
+            "icon": "fas fa-store",
+            "submenu": [
+                {
+                    "route": "coordinador.producto.index",
+                    "url": "admin/productos",
+                    "name": "Productos"
+                },
+                {
+                    "route": "coordinador.producto.ingreso",
+                    "url": "admin/ingresos",
+                    "name": "Ingresos"
+                },
+                {
+                    "route": "coordinador.producto.egreso",
+                    "url": "admin/egresos",
+                    "name": "Egresos"
+                }
+            ]
+        }
+    ]
+
+}

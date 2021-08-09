@@ -67,7 +67,7 @@ return [
     |
     */
 
-      'timezone' => 'America/Guayaquil',
+    'timezone' => 'America/Guayaquil',
 
     /*
     |--------------------------------------------------------------------------
@@ -165,6 +165,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\MenuServiceProvider::class,
+
 
     ],
 
