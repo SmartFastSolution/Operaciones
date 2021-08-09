@@ -27,7 +27,7 @@ class RequerimientoController extends Controller
 
         $sectores = Sector::where('estado', 'on')->get(['id', 'nombre']);
         $tipos    = TipoRequerimiento::where('estado', 'on')->get(['id', 'nombre']);
-    	return view('coordinador.requerimientos.index', compact('sectores', 'tipos'));	
+    	return view('coordinador.requerimientos.index', compact('sectores', 'tipos'));
 	}
     public function show($id)
     {
@@ -35,21 +35,21 @@ class RequerimientoController extends Controller
         $operadores    = User::select('id', 'nombres')->role('operador')->get();
 
         // return $operadores;
-        return view('coordinador.requerimientos.show', compact('id', 'requerimiento', 'operadores'));  
+        return view('coordinador.requerimientos.show', compact('id', 'requerimiento', 'operadores'));
     }
        public function asignacion()
     {
         $operadores  = User::select('id', 'nombres')->role('operador')->withCount('requerimientos')->get();
         // return $operadores;
 
-        return view('coordinador.requerimientos.asignacion', compact('operadores'));  
+        return view('coordinador.requerimientos.asignacion', compact('operadores'));
     }
     public function datos($id)
     {
         $requerimiento = Requerimiento::with([
-        'documentos', 
-        'atencion', 
-        'atencion.documentos', 
+        'documentos',
+        'atencion',
+        'atencion.documentos',
         'coordinador' => function($query) {
             $query->select('id', 'nombres');
         },
@@ -65,7 +65,7 @@ class RequerimientoController extends Controller
         $atencionImg =[];
         if ($requerimiento->atencion) {
         $atencionImg = $requerimiento->atencion->documentos->whereIn('extension',  ['png','jpeg', 'jpg'])->pluck('archivo');
-            
+
         }
 
               return response(array(
@@ -74,14 +74,14 @@ class RequerimientoController extends Controller
                         'img_requerimient' => $imagenes,
                         'img_atencion'     => $atencionImg
                     ),200,[]);
-        // return $requerimiento;    
+        // return $requerimiento;
     }
         public function atencion($id)
     {
         $requerimiento   = Requerimiento::find($id);
         // $this->authorize('view', $requerimiento);
         if ($requerimiento->estado == 'ejecutado' ) {
-            return redirect()->back()->with('error', 'Este requerimiento ya fue atendido');  
+            return redirect()->back()->with('error', 'Este requerimiento ya fue atendido');
 
         }
             $productos = Product::where('estado', 'on')->with(['medida' => function($query) {
@@ -98,7 +98,7 @@ class RequerimientoController extends Controller
         //     $series[$k]->serie = '#'.$serie->serie;
         // }
         $operadores      = User::where('estado' , 'on')->select('id', 'nombres')->role('operador')->get();
-        return view('coordinador.requerimientos.atencion', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas'));  
+        return view('coordinador.requerimientos.atencion', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas'));
     }
        public function distanciaAtencion($latitud, $longitud, $id)
     {
@@ -119,7 +119,7 @@ class RequerimientoController extends Controller
 
 
        return $distance ;
-    
+
     }
      public function store(Request $request, $id)
     {
@@ -133,7 +133,7 @@ class RequerimientoController extends Controller
             'codigo'           => 'required_if:egreso,true',
             'descripcion'      => 'required_if:egreso,true',
             'total_egreso'     => 'required_if:egreso,true',
-            'imagenes.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf', 
+            'archivos.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf',
 
         ],[
             'operador_id'      => 'No has seleccionado al operador',
@@ -143,8 +143,8 @@ class RequerimientoController extends Controller
             'codigo.required_if'  => 'No has seleccionado el codigo de egreso',
             'descripcion.required_if'  => 'No has seleccionado la descripcion del egreso',
             'total_egreso.required_if'  => 'No has seleccionado el total del egreso',
-        
-        ]); 
+
+        ]);
 
 
         $atencion                   =  new Atencion;
@@ -160,7 +160,7 @@ class RequerimientoController extends Controller
         $atencion->save();
 
         if ($request->numero > 0) {
-                foreach ($request->imagenes as $archivo) {
+                foreach ($request->archivos as $archivo) {
                 $nombre       = time().'_'.$archivo->getClientOriginalName();
                 $urldocumento = '/atenciones/'.$nombre;
                 $archivo->storeAs('atenciones',  $nombre, 'public_upload');
@@ -200,17 +200,17 @@ class RequerimientoController extends Controller
         $requerimiento->operador_id = $request->operador_id;
         $requerimiento->save();
 
-    
+
     }
     public function edit($id, $a)
     {
       $atencion = Atencion::with(['documentos', 'egreso', 'egreso.productos' => function($query){
             $query->select('products.id');
-        }])->findOrFail($a); 
+        }])->findOrFail($a);
       // return $atencion;
       if ($atencion->requerimiento_id != $id) {
-            return abort(404);   
-       } 
+            return abort(404);
+       }
     $requerimiento   = Requerimiento::find($id);
     $productos = Product::where('estado', 'on')->with(['medida' => function($query) {
                 $query->select('id', 'simbolo');
@@ -219,7 +219,7 @@ class RequerimientoController extends Controller
     $medidas = Medida::all(['id','unidad', 'simbolo']);
 
      $operadores      = User::where('estado' , 'on')->select('id', 'nombres')->role('operador')->get();
-    return view('coordinador.requerimientos.edit', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas', 'atencion'));  
+    return view('coordinador.requerimientos.edit', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas', 'atencion'));
     }
     public function update(Request $request, $id, $atencion)
     {
@@ -233,7 +233,7 @@ class RequerimientoController extends Controller
             'codigo'           => 'required_if:egreso,true',
             'descripcion'      => 'required_if:egreso,true',
             'total_egreso'     => 'required_if:egreso,true',
-            'imagenes.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf', 
+            'archivos.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf',
 
         ],[
             'operador_id'      => 'No has seleccionado al operador',
@@ -243,8 +243,8 @@ class RequerimientoController extends Controller
             'codigo.required_if'  => 'No has seleccionado el codigo de egreso',
             'descripcion.required_if'  => 'No has seleccionado la descripcion del egreso',
             'total_egreso.required_if'  => 'No has seleccionado el total del egreso',
-        
-        ]); 
+
+        ]);
 
 
         $atencion                   =  Atencion::find($atencion);
@@ -259,7 +259,7 @@ class RequerimientoController extends Controller
         $atencion->save();
 
         if ($request->numero > 0) {
-                foreach ($request->imagenes as $archivo) {
+                foreach ($request->archivos as $archivo) {
                 $nombre       = time().'_'.$archivo->getClientOriginalName();
                 $urldocumento = '/atenciones/'.$nombre;
                 $archivo->storeAs('atenciones',  $nombre, 'public_upload');
@@ -271,7 +271,7 @@ class RequerimientoController extends Controller
 
         if (isset($request->egreso)) {
             if (!isset($atencion->egreso)) {
-                $egreso = new Egreso;        
+                $egreso = new Egreso;
             }else{
                 $egreso = Egreso::find($atencion->egreso->id);
 
@@ -315,6 +315,6 @@ class RequerimientoController extends Controller
         $requerimiento->operador_id = $request->operador_id;
         $requerimiento->save();
 
-        
+
     }
 }

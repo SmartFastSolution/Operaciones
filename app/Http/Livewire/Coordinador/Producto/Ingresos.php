@@ -43,7 +43,7 @@ class Ingresos extends Component
                         ->orWhere('total_ingreso', 'like', '%'.$this->search.'%');
                  	})
                 ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
-                ->paginate($this->perPage); 
+                ->paginate($this->perPage);
 
         return view('livewire.coordinador.producto.ingresos', compact('ingresos'));
     }
@@ -100,8 +100,8 @@ class Ingresos extends Component
 			'descripcion_ingreso.required' => 'No has agregado la descripcion',
 			'total_ingreso.required'       => 'No has agregado el total
 			',
-    	]);  
-    	$this->exportando = true; 
+    	]);
+    	$this->exportando = true;
 
 
 		$ingreso                = new Ingreso;
@@ -124,8 +124,8 @@ class Ingresos extends Component
     	}
     	$ingreso->productos()->sync($relacion);
 
-        $this->emit('success',['mensaje' => 'Ingreso Generado Correctamente', 'modal' => '#crearIngreso']); 
-    	$this->exportando = false; 
+        $this->emit('success',['mensaje' => 'Ingreso Generado Correctamente', 'modal' => '#crearIngreso']);
+    	$this->exportando = false;
     	$this->resetInput();
 
 
@@ -139,8 +139,8 @@ class Ingresos extends Component
 		$this->producto_id         = '';
 		$this->producto_precio     = null;
 		$this->producto_total      = null;
-		$this->exportando      = false;
-		$this->editMode      = false;
+		$this->exportando          = false;
+		$this->editMode            = false;
 		$this->items               = [];
     }
     public function editIngreso($id)
@@ -169,7 +169,7 @@ class Ingresos extends Component
     	$this->editMode = true;
 
 
-    
+
     }
     public function updateIngreso($value='')
     {
@@ -182,8 +182,8 @@ class Ingresos extends Component
 			'descripcion_ingreso.required' => 'No has agregado la descripcion',
 			'total_ingreso.required'       => 'No has agregado el total
 			',
-    	]);  
-    	$this->exportando = true; 
+    	]);
+    	$this->exportando = true;
 
 
 		$ingreso = Ingreso::with(['productos'])->find($this->ingreso_id);
@@ -195,16 +195,16 @@ class Ingresos extends Component
 		foreach ($ingreso->productos as $key => $producto) {
 				$prod = Product::find($producto->id);
 				if (($prod->stock - $producto->pivot->cantidad ) < 0) {
-    			$this->exportando = false; 
+    			$this->exportando = false;
 
-    			 return   $this->emit('warning',['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']); 
-	    			 
+    			 return   $this->emit('warning',['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);
+
 	    		}
 	    		$prod->stock = $prod->stock - $producto->pivot->cantidad;
 
-	    		
+
 	    		$prod->cantidad = $prod->cantidad - ($producto->pivot->cantidad * $prod->presentacion);
-	    		$prod->save();	
+	    		$prod->save();
 		}
 
 		$relacion = [];
@@ -223,9 +223,9 @@ class Ingresos extends Component
 
     	$ingreso->productos()->sync($relacion);
 
-        $this->emit('info',['mensaje' => 'Ingreso Actualizado Correctamente', 'modal' => '#crearIngreso']); 
-    	$this->exportando = false; 
-    	$this->editMode = false; 
+        $this->emit('info',['mensaje' => 'Ingreso Actualizado Correctamente', 'modal' => '#crearIngreso']);
+    	$this->exportando = false;
+    	$this->editMode = false;
     	$this->resetInput();
     }
     public function eliminarItem($index)
@@ -234,19 +234,19 @@ class Ingresos extends Component
     }
     public function eliminarIngreso($id)
     {
-    	
+
 		$ingreso = Ingreso::with(['productos'])->find($id);
 		foreach ($ingreso->productos as $key => $producto) {
 				$prod = Product::find($producto->id);
 				if (($prod->stock - $producto->pivot->cantidad ) < 0) {
-    			 return   $this->emit('warning',['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']); 
+    			 return   $this->emit('warning',['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);
 	    		}
 	    		$prod->stock = $prod->stock - $producto->pivot->cantidad;
 	    		$prod->cantidad = $prod->cantidad - ($producto->pivot->cantidad * $prod->presentacion);
-	    		$prod->save();	
+	    		$prod->save();
 		}
 		$ingreso->delete();
-        $this->emit('info',['mensaje' => 'Ingreso Eliminado Correctamente']); 
+        $this->emit('info',['mensaje' => 'Ingreso Eliminado Correctamente']);
 
     }
 }

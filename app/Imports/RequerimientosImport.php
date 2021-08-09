@@ -11,31 +11,33 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class RequerimientosImport implements ToModel, WithHeadingRow, WithValidation
 {
     /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+     * @param array $row
+     *
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
     public function model(array $row)
     {
         // dd($row);
         return new Requerimiento([
             'user_id'          => Auth::id(),
-            'codigo'           => $row['codigo'],
-            'cuenta'           => $row['cuenta'],
-            'codigo_catastral' => $row['codigo_catastral'],
-            'nombres'          => $row['nombres'],
-            'telefonos'        => $row['telefonos'],
-            'correos'          => $row['correos'],
-            'direccion'        => $row['direccion'],
-            'detalle'          => $row['detalles'],
-            'cedula'           => $row['cedula'],
-            'observacion'      => $row['observacion'],
-            'fecha_maxima'     => $row['fecha_maxima'],
-            'latitud'          => $row['geolocalizacion_latitud'],
-            'longitud'         => $row['geolocalizacion_longitud'],
-            'estado'           => 'pendiente',
+            'codigo'                => $row['codigo'],
+            'cuenta'                => $row['cuenta'],
+            'codigo_catastral'      => $row['codigo_catastral'],
+            'nombres'               => $row['nombres'],
+            'telefonos'             => $row['telefonos'],
+            'correos'               => $row['correos'],
+            'direccion'             => $row['direccion'],
+            'tipo_requerimiento_id' => $row['codigo_requerimiento'],
+            'detalle'               => $row['tipo_requerimiento'],
+            'cedula'                => $row['cedula'],
+            'observacion'           => $row['observacion'],
+            'fecha_maxima'          => $row['fecha_maxima'],
+            'latitud'               => $row['geolocalizacion_latitud']  = 0 ? -2.191643226627306 : $row['geolocalizacion_latitud'],
+            'longitud'              => $row['geolocalizacion_longitud'] = 0 ? -79.87951092125624 : $row['geolocalizacion_longitud'],
+            'estado'                => 'pendiente',
         ]);
     }
+
     public function rules(): array
     {
         return [
@@ -43,15 +45,13 @@ class RequerimientosImport implements ToModel, WithHeadingRow, WithValidation
             'cuenta'           => 'required',
             'codigo_catastral' => 'required',
             'nombres'          => 'required',
-            'telefonos'        => 'required',
-            'correos'          => 'required',
+            // 'telefonos'        => 'required',
+            // 'correos'          => 'required',
             'direccion'        => 'required',
-            'detalles'          => 'required',
+            // 'detalles'          => 'required',
             'cedula'           => 'required',
-            'observacion'      => 'required',
-            'fecha_maxima'     => 'required',
-            'geolocalizacion_latitud'          => 'required',
-            'geolocalizacion_longitud'         => 'required',
+            // 'observacion'      => 'required',
+            // 'fecha_maxima'     => 'required',
         ];
     }
 }

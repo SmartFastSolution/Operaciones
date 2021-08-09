@@ -58,11 +58,11 @@
 								option-value="id"
 								option-text="nombres"
 								placeholder="Elije Un Operador"
-								
+
 								{{-- @input="operadorEmit" --}}
 								>
 								<p class="error-message text-danger font-weight-bold" v-if="errors.operador_id">@{{ errors.operador_id[0] }}</p>
-									
+
 							</div>
 							@endrole
 							<div class="form-group col">
@@ -70,21 +70,21 @@
 								<input type="date" v-model="fecha_atencion" class="form-control @error('fecha_atencion') is-invalid @enderror"  placeholder="">
 								<p class="error-message text-danger font-weight-bold" v-if="errors.fecha_atencion">@{{ errors.fecha_atencion[0] }}</p>
 
-								
+
 							</div>
-							
+
 							<div class="form-group col-sm-12 col-md-12">
 								<label for="inputEmail4">Detalle</label>
 								<p class="error-message text-danger font-weight-bold" v-if="errors.detalle_atencion">@{{ errors.detalle_atencion[0] }}</p>
 								<textarea  cols="30" rows="10" v-model="detalle_atencion"  placeholder="Agregar detalle del requerimiento" class="form-control"></textarea>
-								
-								
+
+
 							</div>
 							<div class="form-group col-sm-12 col-md-12">
 								<label for="inputEmail4">Observacion</label>
 								<p class="error-message text-danger font-weight-bold" v-if="errors.observacion">@{{ errors.observacion[0] }}</p>
 								<vue-ckeditor v-model="observacion" :config="config"/>
-								
+
 							</div>
 							   <div class="form-group col-sm-12 col-md-12">
             <label >Ubicación Georeferenciada</label>
@@ -104,14 +104,14 @@
 			<p class="error-message text-danger font-weight-bold" v-if="errors.longitud">@{{ errors.longitud[0] }}</p>
 
           </div>
-							
+
 							<div class="form-group col-sm-12 col-lg-6">
 								<h2 for="inputAddress">AGREGAR EGRESO <input type="checkbox" v-model="has_egreso" class="form-check-inline"></h2>
-								
-								
+
+
 							</div>
 						</div>
-						
+
 					</div>
 				</div>
 			</div>
@@ -120,17 +120,28 @@
 			<div class="card">
 				<div class="p-2">
 					<div class="card-head"><h2 class="text-center text-danger font-weight-bold">CARGA DE ARCHIVOS</h2></div>
+                    <div v-if="errors.anyfiles('archivos')" >
+                        <div class="alert alert-danger" role="alert">
+                            <h4 class="alert-heading">Tienes Los Siguientes Errores!</h4>
+                            <div v-for="(archivo, key) in errors.archivos('archivos')" :key="key">
+                                <div v-for="(mensaje, k) in archivo">
+                                    <p>@{{ mensaje }}</p>
+                                </div>
+                            </div>
+                          </div>
+
+                     </div>
 					<div class="card-body">
 						<div class="multiple-uploader">
 							<div v-show="$refs.uploader && $refs.uploader.dropActive" class="drop-active">
 								<h3>Deja caer aquí los archivos</h3>
 							</div>
-							<table class="table table-condensed" v-if="imagenes.length">
+							<table class="table table-condensed" v-if="archivos.length">
 								<tr>
 									<th>Nombre</th>
 									<th class="text-right">Acciones</th>
 								</tr>
-								<tr v-for="file in imagenes" :key="file.id">
+								<tr v-for="file in archivos" :key="file.id">
 									<td>@{{ file.name }}</td>
 									<td class="text-right">
 										<button
@@ -172,7 +183,7 @@
 									:directory="directory"
 									{{-- :drop="true" --}}
 									:drop-directory="dropDirectory"
-									v-model="imagenes"
+									v-model="archivos"
 									{{-- @input-filter="inputFilter" --}}
 									ref="uploader"
 									:size="1024"
@@ -219,7 +230,7 @@
 								<p class="error-message text-danger font-weight-bold" v-if="errors.total_egreso">@{{ errors.total_egreso[0] }}</p>
 
 							</div>
-						
+
 							<div class="form-group col-lg-12 col-sm-12">
 								<label for="">Descripción del Egreso</label>
 								<textarea name="" id="" cols="30" rows="10" class="form-control" v-model="egreso.descripcion"></textarea>
@@ -282,7 +293,7 @@
 					</div>
 				</div>
 			</div>
-			
+
 		</div>
 	</div>
 	<div class="row justify-content-center">
@@ -293,6 +304,41 @@
 @section('js')
 <script src="https://cdn.ckeditor.com/4.10.0/full/ckeditor.js"></script>
 <script type="text/javascript">
+    class Errors{
+        constructor(){
+            this.errors = {}
+        }
+        has(field){
+            return this.errors.hasOwnProperty(field);
+        }
+        get(field){
+			if(this.errors[field]){
+                return this.errors[field][0]
+            }
+        }
+        record(errors){
+            this.errors = errors;
+        }
+        any(){
+            return Object.keys(this.errors).length > 0;
+        }
+        anyfiles(query){
+            const asArray = Object.entries(this.errors);
+            //const atLeast9Wins = asArray.filter(([key, value]) => key !== 'fecha_atencion' && key !== 'responsable_id' && key !== 'detalle_atencion' && key !== 'observacion' );
+            const atLeast9Wins = asArray.filter(([key, value]) => key.toLowerCase().indexOf(query.toLowerCase()) > -1 );
+            const atLeast9WinsObject = Object.fromEntries(atLeast9Wins);
+
+            return Object.keys(atLeast9WinsObject).length > 0;
+        }
+        archivos(query){
+            const asArray = Object.entries(this.errors);
+            //const atLeast9Wins = asArray.filter(([key, value]) => key !== 'fecha_atencion' && key !== 'responsable_id' && key !== 'detalle_atencion' && key !== 'observacion' );
+            const atLeast9Wins = asArray.filter(([key, value]) => key.toLowerCase().indexOf(query.toLowerCase()) > -1 );
+            const atLeast9WinsObject = Object.fromEntries(atLeast9Wins);
+        return atLeast9WinsObject;
+        }
+
+    }
 	let id           = @json($id);
 	let at   = @json($atencion);
 	let atencionID   = @json($atencion->id);
@@ -306,8 +352,8 @@
 	if (operador == null) {
 		hasoperador = 'form-control ';
 		operador    = '';
-	} 
-	
+	}
+
 	let link = '{{ route('coordinador.requerimiento.show', $id) }}';
 	console.log(link);
 
@@ -351,8 +397,9 @@
           ['Bold', 'Italic', 'Underline', 'Strike', 'Styles', 'TextColor', 'BGColor', 'UIColor' , 'JustifyLeft' , 'JustifyCenter' , 'JustifyRight' , 'JustifyBlock' , 'BidiLtr' , 'BidiRtl' , 'NumberedList' , 'BulletedList' , 'Outdent' , 'Indent' , 'Blockquote' , 'CreateDiv','Format','Font','FontSize']
         ],
     	},
-	  	imagenes:[],
-	  	errors:[],
+	  	archivos:[],
+        errors: new Errors,
+
 	  	buttonDisable:false,
 	  	multiple: true,
                 directory: false,
@@ -385,13 +432,13 @@
 	  		let set = this;
 
 	  		for (var i = 0; i < e.target.files.length; i++) {
-	  		set.imagenes[i] = e.target.files[i];
-	  			
+	  		set.archivos[i] = e.target.files[i];
+
 	  		}
 	  		// console.log(archivos);
 
 	  		// archiv
-	  		// archivos.forEach(function(index){           
+	  		// archivos.forEach(function(index){
      //  });
 	  	},
 	  	  inputFilter(newFile, oldFile, prevent) {
@@ -431,10 +478,10 @@
                 }
                 // let url = if (true) {}
                 let data = new FormData();
-            	data.append('numero',this.imagenes.length );
+            	data.append('numero',this.archivos.length );
 
-                for (var i = 0; i < this.imagenes.length; i++) {
-                data.append('imagenes[]', this.imagenes[i].file);
+                for (var i = 0; i < this.archivos.length; i++) {
+                data.append('archivos[]', this.archivos[i].file);
                 }
             	data.append('operador_id',set.operador_id );
             	data.append('detalle_atencion',set.detalle_atencion );
@@ -447,7 +494,7 @@
             	data.append('codigo',set.egreso.codigo );
             	data.append('descripcion',set.egreso.descripcion );
             	data.append('total_egreso',set.egreso.total_egreso );
-            	} 
+            	}
             	data.append('items', JSON.stringify(set.egreso.items));
                 axios.post('/coordinador/requerimiento/'+id+'/atencion/'+atencionID+'/update', data, config)
                     .then(function (res) {
@@ -457,8 +504,8 @@
   		      			window.location = link;
                     })
                     .catch(function (error) {
-                         if (error.response.status === 422) {
-		                    set.errors = error.response.data.errors;
+                        if (error.response.status == 422) {
+		                    set.errors.record(error.response.data.errors);
 		                }
 		                set.buttonDisable=false;
                     });
@@ -483,7 +530,7 @@
 	  		} else {
 	  			return 0;
 	  		}
-	  		
+
 	  	},
 	  	agregarItem(){
 	  		if (this.egreso.producto_id === '') {
@@ -502,7 +549,7 @@
               });
 	  			return
 	  			}
-	  		
+
 	  			// if (find.length == 1) {
 	  			// 	let can = (find[0].cantidad + Number(this.cantidad));
 	  			// 	find[0].cantidad = can;
@@ -533,19 +580,19 @@
 					this.egreso.unidad_id     = '';
 					this.egreso.cantidad_real = null;
 					this.egreso.medida        = {};
-	  			
+
 	  		}
 	  	},
 	  	cambioCantidad(index){
 	  		let producto  = this.productos.filter(x => x.id == this.egreso.items[index].id );
 	  		let total = Number(this.egreso.items[index].cantidad) * producto[0].precio_venta;
-	  		this.egreso.items[index].total = total.toFixed(2);  		
+	  		this.egreso.items[index].total = total.toFixed(2);
 	  	},
 	  	eliminarProducto(index){
-          this.egreso.items.splice(index, 1);   
+          this.egreso.items.splice(index, 1);
 
 	  	},
-	  	
+
 	  	resetInput(){
 	  		 this.egreso.codigo = '';
 				this.egreso.descripcion = '';
@@ -556,7 +603,7 @@
 	  	let set = this;
 	  	items.forEach(function(item) {
 	  	let producto  = set.productos.filter(x => x.id == item.id );
-	
+
 		let valorxunidad = producto[0].presentacion /  producto[0].precio_venta;
 		let total = Number(valorxunidad * item.pivot.cantidad_real).toFixed(3);
 		let ite = {
@@ -564,10 +611,10 @@
 		}
 		set.egreso.items.push(ite);
 	  	});
-	
+
 	  	}
 	  }
-	
+
 	});
 
 if (at.egreso != null) {

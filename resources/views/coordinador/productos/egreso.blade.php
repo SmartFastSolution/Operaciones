@@ -15,7 +15,7 @@
 </div>
 @endsection
 @section('js')
-	<script type="text/javascript">
+    <script type="text/javascript">
 	let productos    = @json($productos);
 	let medidas      = @json($medidas);
 	let conversiones = @json($conversiones);
@@ -61,7 +61,7 @@ updating:false,
 	  		} else {
 	  			return 0;
 	  		}
-	  		
+
 	  	},
 	  	agregarItem(){
 	  		if (this.producto_id === '') {
@@ -88,7 +88,7 @@ updating:false,
 		              });
 	  			return
 	  			}
-	  		
+
 	  			// if (find.length == 1) {
 	  			// 	let can = (find[0].cantidad + Number(this.cantidad));
 	  			// 	find[0].cantidad = can;
@@ -119,13 +119,13 @@ updating:false,
 					this.unidad_id     = '';
 					this.cantidad_real = null;
 					this.medida        = {};
-	  			
+
 	  		}
 	  	},
 	  	cambioCantidad(index){
 	  		let producto  = this.productos.filter(x => x.id == this.items[index].id );
 	  		let total = Number(this.items[index].cantidad) * producto[0].precio_venta;
-	  		this.items[index].total = total.toFixed(2);  		
+	  		this.items[index].total = total.toFixed(2);
 	  	},
 	  	incremento(index){
 
@@ -133,7 +133,7 @@ updating:false,
 					let producto               = this.productos.filter(x => x.id == this.items[index].id );
 					let total                  = Number(cantidad) * producto[0].precio_venta;
 					this.items[index].cantidad = cantidad;
-					this.items[index].total    = total.toFixed(2);  		
+					this.items[index].total    = total.toFixed(2);
 
 	  	},
 	  	decremento(index){
@@ -142,10 +142,10 @@ updating:false,
 					let producto               = this.productos.filter(x => x.id == this.items[index].id );
 					let total                  = Number(cantidad) * producto[0].precio_venta;
 					this.items[index].cantidad = cantidad;
-					this.items[index].total    = total.toFixed(2); 
+					this.items[index].total    = total.toFixed(2);
 	  	},
 	  	eliminarProducto(index){
-          this.items.splice(index, 1);   
+          this.items.splice(index, 1);
 
 	  	},
 	  	generarEgreso(){
@@ -254,7 +254,7 @@ updating:false,
 	  	let set = this;
 	  	items.forEach(function(item) {
 	  	let producto  = set.productos.filter(x => x.id == item.id );
-	
+
 		let valorxunidad = producto[0].presentacion /  producto[0].precio_venta;
 		let total = Number(valorxunidad * item.pivot.cantidad_real).toFixed(3);
 		let ite = {
@@ -262,7 +262,7 @@ updating:false,
 		}
 		set.items.push(ite);
 	  	});
-	
+
 	  	}
 	  }
 	});
