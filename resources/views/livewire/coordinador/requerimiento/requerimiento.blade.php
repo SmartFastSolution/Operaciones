@@ -33,8 +33,8 @@
                                 placeholder="Buscar Requerimientos...">
                         </div>
                         <div class="col-lg-2 col-sm-12 mt-2">
-                            <input wire:model.debounce.300ms="sectorSearch" type="text" class="form-control p-2"
-                                placeholder="Buscar Sector...">
+                            <input wire:model.debounce.300ms="codigoCatastral" type="text" class="form-control p-2"
+                                placeholder="Buscar Codigo Catastral...">
                         </div>
                         <div class="col-lg-2 col-sm-12 mt-2">
                             <select wire:model="orderBy" class="custom-select " id="grid-state">

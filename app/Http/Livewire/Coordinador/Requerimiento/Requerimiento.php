@@ -6,6 +6,7 @@ use App\Document;
 use App\Exports\RequerimientoExport;
 use App\Imports\RequerimientosImport;
 use App\Requerimiento as Requerimient;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -24,7 +25,7 @@ class Requerimiento extends Component
         'search' => ['except' => ''],
         'page',
         'status' => ['except' => ''],
-        'sectorSearch' => ['except' => '']
+        'codigoCatastral' => ['except' => '']
     ];
     public $perPage          = 10;
     public $search           = '';
@@ -33,7 +34,7 @@ class Requerimiento extends Component
     public $estado           = 'pendiente';
     public $status           = '';
     public $sector_id        = '';
-    public $sectorSearch     = '';
+    public $codigoCatastral     = '';
     public $fechaini         = null;
     public $fechafin         = null;
     public $requerimiento_id = '';
@@ -58,6 +59,7 @@ class Requerimiento extends Component
             'excel.required'      => 'No has agregado el excel',
             'excel.mimes'      => 'Solo puedes subir un archivo de tipo excel',
         ]);
+
         try {
             Excel::import(new RequerimientosImport, $this->excel);
             $this->emit('success', ['mensaje' => 'Importación exitosa', 'modal' => '#importarRequerimiento']);
@@ -70,6 +72,8 @@ class Requerimiento extends Component
                     $this->errores[] = $error . ' en la columna' . $failure->row();
                 }
             }
+        } catch (Exception $e) {
+            $this->emit('error', ['mensaje' => 'El archivo contiene datos que genera error en la base de datos']);
         }
     }
     public function render()
@@ -79,15 +83,14 @@ class Requerimiento extends Component
             ->leftJoin('atencions', 'requerimientos.id', '=', 'atencions.requerimiento_id')
             ->where(function ($query) {
                 $query->where('nombres', 'like', '%' . $this->search . '%')
-                    ->orWhere('codigo_catastral', 'like', '%' . $this->search . '%')
                     ->orWhere('direccion', 'like', '%' . $this->search . '%')
                     ->orWhere('codigo', 'like', '%' . $this->search . '%')
                     ->orWhere('cuenta', 'like', '%' . $this->search . '%')
                     ->orWhere('cedula', 'like', '%' . $this->search . '%');
             })
             ->where(function ($query) {
-                if ($this->sectorSearch !== '') {
-                    $query->where('sectors.nombre', 'like', '%' . $this->sectorSearch . '%');
+                if ($this->codigoCatastral !== '') {
+                    $query->where('requerimientos.codigo_catastral', 'like', '%' . $this->codigoCatastral . '%');
                 }
             })
             ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini, $this->fechafin])
@@ -348,8 +351,8 @@ class Requerimiento extends Component
                     ->orWhere('cedula', 'like', '%' . $this->search . '%');
             })
             ->where(function ($query) {
-                if ($this->sectorSearch !== '') {
-                    $query->where('sectors.nombre', 'like', '%' . $this->sectorSearch . '%');
+                if ($this->codigoCatastral !== '') {
+                    $query->where('sectors.nombre', 'like', '%' . $this->codigoCatastral . '%');
                 }
             })
             ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini, $this->fechafin])

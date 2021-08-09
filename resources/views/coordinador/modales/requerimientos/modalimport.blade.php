@@ -22,6 +22,7 @@
                     <div class="form-group col-12">
                         <label for="">Archivo Excel</label>
                         <input type="file" wire:model="excel" id="upload{{ $iteration }}"
+                            wire:loading.attr="disabled" wire:target="importExcel"
                             class="form-control @error('excel') is-invalid @enderror">
 
                         <small>Nota: Solo puedes agregar archivos con extensión .xlsx</small>
