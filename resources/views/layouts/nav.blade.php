@@ -129,7 +129,8 @@
                     </div>
                     <ul class="sidebar-menu">
                         @role('super-admin')
-                        <li class="@yield('adminindex')"><a class="nav-link" href="{{ route('admin.index') }}"><i
+                        <li class="{{ active('admin') }}"><a class=" nav-link"
+                                href="{{ route('admin.index') }}"><i
                                     class=" fa fa-tachometer-alt"></i><span>Inicio</span></a></li>
                         <li class="menu-header">Administracion</li>
                         @foreach ($menuData[0]->administrador as $menu)
@@ -137,7 +138,7 @@
                         @endforeach
                         @endrole
                         @role('coordinador')
-                        <li class="@yield('adminindex')"><a class="nav-link"
+                        <li class="{{ active('coordinador') }}"><a class="nav-link"
                                 href="{{ route('coordinador.index') }}"><i
                                     class=" fa fa-tachometer-alt"></i><span>Inicio</span></a></li>
                         <li class="menu-header">Coordinador</li>

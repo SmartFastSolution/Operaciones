@@ -20,7 +20,7 @@ class CoordinadorController extends Controller
         $pendiente = Requerimiento::where('user_id', Auth::id())->where('estado', 'pendiente')->count();
         $total = Requerimiento::where('user_id', Auth::id())->count();
         $requerimientos = Requerimiento::where('user_id', Auth::id())
-            ->orderBy('id', 'asc')
+            // ->orderBy('id', 'asc')
             ->latest()
             ->take(5)
             ->get(['id', 'codigo', 'cuenta', 'nombres']);
