@@ -2,33 +2,40 @@
 
 namespace App\Http\Controllers\Coordinador;
 
-use App\Atencion;
-use App\ConversionUnidad;
-use App\Document;
-use App\Egreso;
-use App\Http\Controllers\Controller;
-use App\Medida;
-use App\Product;
-use App\Requerimiento;
-use App\Sector;
-use App\TipoRequerimiento;
 use App\User;
+use App\Egreso;
+use App\Medida;
+use App\Sector;
+use App\Product;
+use App\Atencion;
+use App\Document;
+use App\Requerimiento;
+use App\ConversionUnidad;
+use App\TipoRequerimiento;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\RequerimientoRequest;
 
 class RequerimientoController extends Controller
 {
     public function __construct()
     {
-       $this->middleware('auth');
+        $this->middleware('auth');
     }
-	public function index()
-	{
+    public function index()
+    {
 
         $sectores = Sector::where('estado', 'on')->get(['id', 'nombre']);
         $tipos    = TipoRequerimiento::where('estado', 'on')->get(['id', 'nombre']);
-    	return view('coordinador.requerimientos.index', compact('sectores', 'tipos'));
-	}
+        return view('coordinador.requerimientos.index', compact('sectores', 'tipos'));
+    }
+    public function create()
+    {
+        $sectores = Sector::where('estado', 'on')->get(['id', 'nombre']);
+        $tipos    = TipoRequerimiento::where('estado', 'on')->get(['id', 'nombre']);
+        return view('coordinador.requerimientos.create', compact('sectores', 'tipos'));
+    }
     public function show($id)
     {
         $requerimiento = Requerimiento::find($id, ['id', 'latitud', 'longitud', 'operador_id', 'estado']);
@@ -37,7 +44,7 @@ class RequerimientoController extends Controller
         // return $operadores;
         return view('coordinador.requerimientos.show', compact('id', 'requerimiento', 'operadores'));
     }
-       public function asignacion()
+    public function asignacion()
     {
         $operadores  = User::select('id', 'nombres')->role('operador')->withCount('requerimientos')->get();
         // return $operadores;
@@ -47,48 +54,46 @@ class RequerimientoController extends Controller
     public function datos($id)
     {
         $requerimiento = Requerimiento::with([
-        'documentos',
-        'atencion',
-        'atencion.documentos',
-        'coordinador' => function($query) {
-            $query->select('id', 'nombres');
-        },
-          'sector' => function($query) {
-            $query->select('id','nombre');
-        },
-         'tipo' => function($query) {
-            $query->select('id','nombre');
-        }
+            'documentos',
+            'atencion',
+            'atencion.documentos',
+            'coordinador' => function ($query) {
+                $query->select('id', 'nombres');
+            },
+            'sector' => function ($query) {
+                $query->select('id', 'nombre');
+            },
+            'tipo' => function ($query) {
+                $query->select('id', 'nombre');
+            }
         ])->find($id);
 
-        $imagenes = $requerimiento->documentos->whereIn('extension',  ['png','jpeg', 'jpg'])->pluck('archivo');
-        $atencionImg =[];
+        $imagenes = $requerimiento->documentos->whereIn('extension',  ['png', 'jpeg', 'jpg'])->pluck('archivo');
+        $atencionImg = [];
         if ($requerimiento->atencion) {
-        $atencionImg = $requerimiento->atencion->documentos->whereIn('extension',  ['png','jpeg', 'jpg'])->pluck('archivo');
-
+            $atencionImg = $requerimiento->atencion->documentos->whereIn('extension',  ['png', 'jpeg', 'jpg'])->pluck('archivo');
         }
 
-              return response(array(
-                        'success'          => true,
-                        'requerimiento'    => $requerimiento,
-                        'img_requerimient' => $imagenes,
-                        'img_atencion'     => $atencionImg
-                    ),200,[]);
+        return response(array(
+            'success'          => true,
+            'requerimiento'    => $requerimiento,
+            'img_requerimient' => $imagenes,
+            'img_atencion'     => $atencionImg
+        ), 200, []);
         // return $requerimiento;
     }
-        public function atencion($id)
+    public function atencion($id)
     {
         $requerimiento   = Requerimiento::find($id);
         // $this->authorize('view', $requerimiento);
-        if ($requerimiento->estado == 'ejecutado' ) {
+        if ($requerimiento->estado == 'ejecutado') {
             return redirect()->back()->with('error', 'Este requerimiento ya fue atendido');
-
         }
-            $productos = Product::where('estado', 'on')->with(['medida' => function($query) {
-                $query->select('id', 'simbolo');
-            }])->get();
-        $conversiones = ConversionUnidad::all(['id','medida_base', 'medida_conversion', 'factor']);
-        $medidas = Medida::all(['id','unidad', 'simbolo']);
+        $productos = Product::where('estado', 'on')->with(['medida' => function ($query) {
+            $query->select('id', 'simbolo');
+        }])->get();
+        $conversiones = ConversionUnidad::all(['id', 'medida_base', 'medida_conversion', 'factor']);
+        $medidas = Medida::all(['id', 'unidad', 'simbolo']);
         // $codigo_atencion = Codigo::where('estado' , 'on')->get(['id', 'codigo']);
         // $series          = Serie::where('estado' , 'on')->get(['id', 'nombre', 'serie']);
         // foreach ($codigo_atencion as $key => $codigo) {
@@ -97,10 +102,10 @@ class RequerimientoController extends Controller
         // foreach ($series as $k => $serie) {
         //     $series[$k]->serie = '#'.$serie->serie;
         // }
-        $operadores      = User::where('estado' , 'on')->select('id', 'nombres')->role('operador')->get();
+        $operadores      = User::where('estado', 'on')->select('id', 'nombres')->role('operador')->get();
         return view('coordinador.requerimientos.atencion', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas'));
     }
-       public function distanciaAtencion($latitud, $longitud, $id)
+    public function distanciaAtencion($latitud, $longitud, $id)
     {
         $requerimiento = Requerimiento::find($id);
 
@@ -113,17 +118,15 @@ class RequerimientoController extends Controller
         $distance = (6371 *
             acos(
                 cos($rlat0) * cos($rlat1) * cos($lonDelta) +
-                sin($rlat0) * sin($rlat1)
-            )
-        );
+                    sin($rlat0) * sin($rlat1)
+            ));
 
 
-       return $distance ;
-
+        return $distance;
     }
-     public function store(Request $request, $id)
+    public function store(Request $request, $id)
     {
-            $request->validate([
+        $request->validate([
             'operador_id'      => 'required',
             'detalle_atencion' => 'required',
             'observacion'      => 'required',
@@ -135,7 +138,7 @@ class RequerimientoController extends Controller
             'total_egreso'     => 'required_if:egreso,true',
             'archivos.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf',
 
-        ],[
+        ], [
             'operador_id'      => 'No has seleccionado al operador',
             'detalle_atencion.required' => 'No has agregado el detalle de la atención',
             'observacion.required'      => 'No has agregado la observación de la atención',
@@ -160,70 +163,68 @@ class RequerimientoController extends Controller
         $atencion->save();
 
         if ($request->numero > 0) {
-                foreach ($request->archivos as $archivo) {
-                $nombre       = time().'_'.$archivo->getClientOriginalName();
-                $urldocumento = '/atenciones/'.$nombre;
+            foreach ($request->archivos as $archivo) {
+                $nombre       = time() . '_' . $archivo->getClientOriginalName();
+                $urldocumento = '/atenciones/' . $nombre;
                 $archivo->storeAs('atenciones',  $nombre, 'public_upload');
-                $documento    = new Document(['nombre'=> $archivo->getClientOriginalName(), 'extension'=> pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo'=>$urldocumento]);
+                $documento    = new Document(['nombre' => $archivo->getClientOriginalName(), 'extension' => pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo' => $urldocumento]);
                 $atencion->documentos()->save($documento);
             }
         }
 
 
         if (isset($request->egreso)) {
-        $egreso               = new Egreso;
-        $egreso->codigo       = $request->codigo;
-        $egreso->descripcion  = $request->descripcion;
-        $egreso->atencion_id  = $atencion->id;
-        $egreso->total_egreso = $request->total_egreso;
-        $egreso->save();
-        $productos =json_decode( $request->items, true);
-        // $items = $request->items;
-        $relacion = [];
-        foreach ($productos as $key => $producto) {
-            $produc           = Product::find($producto['id']);
-            $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
-            $relacion[$producto['id']] = array(
-                "cantidad"      => $producto['cantidad_unidad'],
-                "cantidad_real" => $producto['cantidad_base'],
-                "total"         => $producto['total'],
-            );
-        }
-        $egreso->productos()->sync($relacion);
+            $egreso               = new Egreso;
+            $egreso->codigo       = $request->codigo;
+            $egreso->descripcion  = $request->descripcion;
+            $egreso->atencion_id  = $atencion->id;
+            $egreso->total_egreso = $request->total_egreso;
+            $egreso->save();
+            $productos = json_decode($request->items, true);
+            // $items = $request->items;
+            $relacion = [];
+            foreach ($productos as $key => $producto) {
+                $produc           = Product::find($producto['id']);
+                $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
+                $stock            = $cantidad / $produc->presentacion;
+                $produc->cantidad = $cantidad;
+                $produc->stock    = $stock;
+                $produc->save();
+                $relacion[$producto['id']] = array(
+                    "cantidad"      => $producto['cantidad_unidad'],
+                    "cantidad_real" => $producto['cantidad_base'],
+                    "total"         => $producto['total'],
+                );
+            }
+            $egreso->productos()->sync($relacion);
         }
         $requerimiento              = Requerimiento::find($id);
         $requerimiento->estado      = 'ejecutado';
         $requerimiento->operador_id = $request->operador_id;
         $requerimiento->save();
-
-
     }
     public function edit($id, $a)
     {
-      $atencion = Atencion::with(['documentos', 'egreso', 'egreso.productos' => function($query){
+        $atencion = Atencion::with(['documentos', 'egreso', 'egreso.productos' => function ($query) {
             $query->select('products.id');
         }])->findOrFail($a);
-      // return $atencion;
-      if ($atencion->requerimiento_id != $id) {
+        // return $atencion;
+        if ($atencion->requerimiento_id != $id) {
             return abort(404);
-       }
-    $requerimiento   = Requerimiento::find($id);
-    $productos = Product::where('estado', 'on')->with(['medida' => function($query) {
-                $query->select('id', 'simbolo');
-            }])->get();
-    $conversiones = ConversionUnidad::all(['id','medida_base', 'medida_conversion', 'factor']);
-    $medidas = Medida::all(['id','unidad', 'simbolo']);
+        }
+        $requerimiento   = Requerimiento::find($id);
+        $productos = Product::where('estado', 'on')->with(['medida' => function ($query) {
+            $query->select('id', 'simbolo');
+        }])->get();
+        $conversiones = ConversionUnidad::all(['id', 'medida_base', 'medida_conversion', 'factor']);
+        $medidas = Medida::all(['id', 'unidad', 'simbolo']);
 
-     $operadores      = User::where('estado' , 'on')->select('id', 'nombres')->role('operador')->get();
-    return view('coordinador.requerimientos.edit', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas', 'atencion'));
+        $operadores      = User::where('estado', 'on')->select('id', 'nombres')->role('operador')->get();
+        return view('coordinador.requerimientos.edit', compact('id', 'requerimiento', 'operadores', 'productos', 'conversiones', 'medidas', 'atencion'));
     }
     public function update(Request $request, $id, $atencion)
     {
-                $request->validate([
+        $request->validate([
             'operador_id'      => 'required',
             'detalle_atencion' => 'required',
             'observacion'      => 'required',
@@ -235,7 +236,7 @@ class RequerimientoController extends Controller
             'total_egreso'     => 'required_if:egreso,true',
             'archivos.*'       => 'max:51200|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf',
 
-        ],[
+        ], [
             'operador_id'      => 'No has seleccionado al operador',
             'detalle_atencion.required' => 'No has agregado el detalle de la atención',
             'observacion.required'      => 'No has agregado la observación de la atención',
@@ -259,11 +260,11 @@ class RequerimientoController extends Controller
         $atencion->save();
 
         if ($request->numero > 0) {
-                foreach ($request->archivos as $archivo) {
-                $nombre       = time().'_'.$archivo->getClientOriginalName();
-                $urldocumento = '/atenciones/'.$nombre;
+            foreach ($request->archivos as $archivo) {
+                $nombre       = time() . '_' . $archivo->getClientOriginalName();
+                $urldocumento = '/atenciones/' . $nombre;
                 $archivo->storeAs('atenciones',  $nombre, 'public_upload');
-                $documento    = new Document(['nombre'=> $archivo->getClientOriginalName(), 'extension'=> pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo'=>$urldocumento]);
+                $documento    = new Document(['nombre' => $archivo->getClientOriginalName(), 'extension' => pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo' => $urldocumento]);
                 $atencion->documentos()->save($documento);
             }
         }
@@ -272,49 +273,80 @@ class RequerimientoController extends Controller
         if (isset($request->egreso)) {
             if (!isset($atencion->egreso)) {
                 $egreso = new Egreso;
-            }else{
+            } else {
                 $egreso = Egreso::find($atencion->egreso->id);
 
-        foreach ($egreso->productos as $key => $producto) {
-            $produc           = Product::find($producto->id);
-            $cantidad         = intval($produc->cantidad) + $producto->pivot->cantidad_real;
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
-        }
+                foreach ($egreso->productos as $key => $producto) {
+                    $produc           = Product::find($producto->id);
+                    $cantidad         = intval($produc->cantidad) + $producto->pivot->cantidad_real;
+                    $stock            = $cantidad / $produc->presentacion;
+                    $produc->cantidad = $cantidad;
+                    $produc->stock    = $stock;
+                    $produc->save();
+                }
             }
-        $egreso->codigo       = $request->codigo;
-        $egreso->descripcion  = $request->descripcion;
-        $egreso->atencion_id  = $atencion->id;
-        $egreso->total_egreso = $request->total_egreso;
-        $egreso->save();
+            $egreso->codigo       = $request->codigo;
+            $egreso->descripcion  = $request->descripcion;
+            $egreso->atencion_id  = $atencion->id;
+            $egreso->total_egreso = $request->total_egreso;
+            $egreso->save();
 
 
-        $productos =json_decode( $request->items, true);
-        // $items = $request->items;
-        $relacion = [];
-        foreach ($productos as $key => $producto) {
-            $produc           = Product::find($producto['id']);
-            $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
-            $relacion[$producto['id']] = array(
-                "cantidad"      => $producto['cantidad_unidad'],
-                "cantidad_real" => $producto['cantidad_base'],
-                "total"         =>$producto['total'],
-            );
-        }
-        $egreso->productos()->sync($relacion);
+            $productos = json_decode($request->items, true);
+            // $items = $request->items;
+            $relacion = [];
+            foreach ($productos as $key => $producto) {
+                $produc           = Product::find($producto['id']);
+                $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
+                $stock            = $cantidad / $produc->presentacion;
+                $produc->cantidad = $cantidad;
+                $produc->stock    = $stock;
+                $produc->save();
+                $relacion[$producto['id']] = array(
+                    "cantidad"      => $producto['cantidad_unidad'],
+                    "cantidad_real" => $producto['cantidad_base'],
+                    "total"         => $producto['total'],
+                );
+            }
+            $egreso->productos()->sync($relacion);
         }
 
         $requerimiento              = Requerimiento::find($id);
         $requerimiento->estado      = 'ejecutado';
         $requerimiento->operador_id = $request->operador_id;
         $requerimiento->save();
+    }
+    public function storeRequerimiento(RequerimientoRequest $request)
+    {
+        $requerimiento                        = new Requerimiento;
+        $requerimiento->user_id               = Auth::id();
+        $requerimiento->codigo                = $request->codigo_requerimiento;
+        $requerimiento->cuenta                = $request->cuenta_requerimiento;
+        $requerimiento->nombres               = $request->nombre_requerimiento;
+        $requerimiento->codigo_catastral      = $request->codigo_catastral;
+        $requerimiento->cedula                = $request->cedula_requerimiento;
+        $requerimiento->telefonos             = $request->telefonos_requerimiento;
+        $requerimiento->correos               = $request->correos_requerimiento;
+        $requerimiento->direccion             = $request->direccion_requerimiento;
+        $requerimiento->sector_id             = $request->sector_id;
+        $requerimiento->tipo_requerimiento_id = $request->tipo_requerimiento_id;
+        $requerimiento->detalle               = $request->detalle_requerimiento;
+        $requerimiento->observacion           = $request->observacion_requerimiento;
+        $requerimiento->fecha_maxima          = $request->fecha_requerimiento;
+        $requerimiento->latitud               = $request->latitud;
+        $requerimiento->longitud              = $request->longitud;
+        $requerimiento->estado                = 'pendiente';
+        $requerimiento->save();
 
-
+        if ($request->hasFile('archivos')) {
+            foreach ($request->archivos as $archivo) {
+                $nombre   = time() . '_' . $archivo->getClientOriginalName();
+                $urldocumento  = '/requerimientos/' . $nombre;
+                $archivo->storeAs('requerimientos',  $nombre, 'public_upload');
+                $documento = new Document(['nombre' => $archivo->getClientOriginalName(), 'extension' => pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo' => $urldocumento]);
+                $requerimiento->documentos()->save($documento);
+            }
+        }
+        return response()->json(['msg' => 'Requerimiento Creado Correctaemnte', 'link' => route('coordinador.requerimiento.index')], 201);
     }
 }

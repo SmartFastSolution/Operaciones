@@ -185,6 +185,8 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="{{ asset('js/eventos.js') }}"></script>
     @yield('js')
+    @stack('scripts')
+
 </body>
 
 </html>

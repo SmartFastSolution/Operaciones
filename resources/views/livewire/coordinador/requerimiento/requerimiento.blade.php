@@ -1,10 +1,13 @@
 <div>
-    @include('coordinador.modales.requerimientos.modalrequerimiento')
+    {{-- @include('coordinador.modales.requerimientos.modalrequerimiento') --}}
     @include('coordinador.modales.requerimientos.modalimport')
-    <button wire:target="exportarExcel" wire:loading.attr="disabled" type="button" class="btn btn-primary mb-2"
+    {{-- <button wire:target="exportarExcel" wire:loading.attr="disabled" type="button" class="btn btn-primary mb-2"
         data-toggle="modal" data-target="#createRequerimiento"><i class="fas fa-clipboard-list"></i>
         Crear Requerimiento
-    </button>
+    </button> --}}
+    <a wire:target="exportarExcel" wire:loading.attr="disabled" type="button" class="btn btn-primary mb-2"
+        href="{{ route('coordinador.requerimiento.create') }}"><i class="fas fa-clipboard-list"></i>
+        Crear Requerimiento</a>
     <button wire:target="exportarExcel" wire:loading.attr="disabled" type="button" class="btn btn-warning mb-2"
         data-toggle="modal" data-target="#importarRequerimiento"><i class="fas fa-file-excel"></i>
         Importar

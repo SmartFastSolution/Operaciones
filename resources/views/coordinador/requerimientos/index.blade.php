@@ -61,7 +61,7 @@
 			limpiarCampos(){
 				this.center = {
 					lat: -2.219662,
-					lng: -79.929179 
+					lng: -79.929179
 				};
 				this.puntuacion = {
 					lat: '',
@@ -74,7 +74,7 @@
 			cargarDatos(datos){
 				this.center = {
 				lat: datos.latitud,
-				lng: datos.longitud 
+				lng: datos.longitud
 				};
 				this.puntuacion = {
 				lat: datos.latitud,
@@ -85,26 +85,26 @@
 				this.sector            =datos.sector;
 			}
 		  }
-		
+
 		});
 
 		Livewire.on('guardarObservacion', function () {
 		  Livewire.emit('createRequerimiento', requerimiento.detalle_actividad);
-			
+
 		});
 
 		Livewire.on('limpiarCampo', function () {
-			requerimiento.limpiarCampos();			
+			requerimiento.limpiarCampos();
 		});
 
 		Livewire.on('editarRequerimiento', function (datos) {
 			// console.log(datos.latitud)
-			requerimiento.cargarDatos(datos);			
+			requerimiento.cargarDatos(datos);
 		});
 
 		Livewire.on('actualizarObservacion', function () {
 		  Livewire.emit('updaRequerimiento', requerimiento.detalle_actividad);
-			
+
 		});
 	</script>
 @endsection

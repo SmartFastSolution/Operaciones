@@ -130,10 +130,10 @@ class Requerimiento extends Component
     public function creaRequerimiento()
     {
         $this->validate([
-            'codigo_requerimiento'      => 'required|max:100',
-            'cuenta_requerimiento'      => 'required|max:100',
+            'codigo_requerimiento'      => 'required|max: 100',
+            'cuenta_requerimiento'      => 'required|max: 100',
             'nombre_requerimiento'      => 'required',
-            'cedula_requerimiento'      => 'required|max:13',
+            'cedula_requerimiento'      => 'required|max: 13',
             'codigo_catastral'          => 'required',
             'telefonos_requerimiento'   => 'required',
             'correos_requerimiento'     => 'required',
@@ -141,7 +141,7 @@ class Requerimiento extends Component
             'fecha_requerimiento'       => 'required',
             'detalle_requerimiento'     => 'required',
             'observacion_requerimiento' => 'required',
-            'tipo_id'                   => 'required',
+            'tipo_requerimiento_id'     => 'required',
             'sector_id'                 => 'required',
             'longitud'                  => 'required',
             'latitud'                   => 'required',
