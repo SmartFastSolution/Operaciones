@@ -20,6 +20,8 @@ Route::prefix('coordinador')->group(function () {
         Route::post('/requerimiento/store', 'Coordinador\RequerimientoController@storeRequerimiento')->name('coordinador.requerimiento.store_requerimiento');
 
         Route::get('/requerimiento/{id}/show', 'Coordinador\RequerimientoController@show')->name('coordinador.requerimiento.show');
+        Route::get('/requerimiento/{requerimiento}/edit', 'Coordinador\RequerimientoController@editRequerimiento')->name('coordinador.requerimiento.edit_requerimiento');
+        Route::put('/requerimiento/{requerimiento}/update', 'Coordinador\RequerimientoController@updateRequerimiento')->name('coordinador.requerimiento.update_requerimiento');
         Route::get('/requerimiento/{id}/informacion', 'Coordinador\RequerimientoController@datos')->name('coordinador.requerimiento.datos');
         // Route::get('/requerimiento/{id}/atencion', 'Coordinador\RequerimientoController@show')->name('coordinador.requerimiento.atencion');
 

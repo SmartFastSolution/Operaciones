@@ -349,4 +349,53 @@ class RequerimientoController extends Controller
         }
         return response()->json(['msg' => 'Requerimiento Creado Correctaemnte', 'link' => route('coordinador.requerimiento.index')], 201);
     }
+    public function editRequerimiento(Requerimiento $requerimiento)
+    {
+        if ($requerimiento->estado == 'ejecutado') {
+            abort(403, 'Este Requerimiento ya fue ejecutado');
+        }
+        $requerimiento->documentos;
+        $sectores = Sector::where('estado', 'on')->get(['id', 'nombre']);
+        $tipos    = TipoRequerimiento::where('estado', 'on')->get(['id', 'nombre']);
+        return view('coordinador.requerimientos.edit_requerimiento', compact('requerimiento', 'sectores', 'tipos'));
+    }
+    public function updateRequerimiento(Requerimiento $requerimiento, RequerimientoRequest $request)
+    {
+        $requerimiento->user_id               = Auth::id();
+        $requerimiento->codigo                = $request->codigo_requerimiento;
+        $requerimiento->cuenta                = $request->cuenta_requerimiento;
+        $requerimiento->nombres               = $request->nombre_requerimiento;
+        $requerimiento->codigo_catastral      = $request->codigo_catastral;
+        $requerimiento->cedula                = $request->cedula_requerimiento;
+        $requerimiento->telefonos             = $request->telefonos_requerimiento;
+        $requerimiento->correos               = $request->correos_requerimiento;
+        $requerimiento->direccion             = $request->direccion_requerimiento;
+        $requerimiento->sector_id             = $request->sector_id;
+        $requerimiento->tipo_requerimiento_id = $request->tipo_requerimiento_id;
+        $requerimiento->detalle               = $request->detalle_requerimiento;
+        $requerimiento->observacion           = $request->observacion_requerimiento;
+        $requerimiento->fecha_maxima          = $request->fecha_requerimiento;
+        $requerimiento->latitud               = $request->latitud;
+        $requerimiento->longitud              = $request->longitud;
+        $requerimiento->save();
+        $eliminados = json_decode($request->eliminados);
+        if (count($eliminados) > 0) {
+            foreach ($eliminados as $key => $id) {
+                $docum  = Document::find($id);
+                $image_path = public_path() . $docum->archivo;
+                unlink($image_path);
+                $docum->delete();
+            }
+        };
+        if ($request->hasFile('archivos')) {
+            foreach ($request->archivos as $archivo) {
+                $nombre   = time() . '_' . $archivo->getClientOriginalName();
+                $urldocumento  = '/requerimientos/' . $nombre;
+                $archivo->storeAs('requerimientos',  $nombre, 'public_upload');
+                $documento = new Document(['nombre' => $archivo->getClientOriginalName(), 'extension' => pathinfo($urldocumento, PATHINFO_EXTENSION), 'archivo' => $urldocumento]);
+                $requerimiento->documentos()->save($documento);
+            }
+        }
+        return response()->json(['msg' => 'Requerimiento Actualizado Correctaemnte', 'link' => route('coordinador.requerimiento.index')], 201);
+    }
 }

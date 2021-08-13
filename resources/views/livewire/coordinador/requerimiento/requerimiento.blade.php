@@ -151,9 +151,8 @@
                                             </td>
                                             <td class="p-0 text-center" width="50">
                                                 <a wire:loading.class="disabled" class="btn btn-warning text-dark"
-                                                    data-toggle="modal" wire:target="exportarExcel"
-                                                    wire:loading.attr="disabled" data-target="#createRequerimiento"
-                                                    wire:click.prevent="editRequerimiento({{ $requerimiento->id }})">
+                                                    href="{{ route('coordinador.requerimiento.edit_requerimiento', $requerimiento->id) }}"
+                                                    wire:target="exportarExcel" wire:loading.attr="disabled">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                             </td>
