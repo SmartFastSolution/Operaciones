@@ -141,7 +141,7 @@
 
 </div>
 </div>
-<div class="row" v-if="req.documentos.length >0">
+<div class="row" v-if="req.documentos.length > 0 || eliminados.length > 0">
 <div class="col-lg-6">
     <div class="card" id="requerimiento">
         <div class="card-body">

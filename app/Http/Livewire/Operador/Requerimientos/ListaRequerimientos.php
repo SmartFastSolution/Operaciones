@@ -25,7 +25,7 @@ class ListaRequerimientos extends Component
     public $estado           = 'pendiente';
     public $status           = '';
     public $sector_id        = '';
-    public $sectorSearch     = '';
+    public $codigoCatastral     = '';
     public $fechaini         = null;
     public $fechafin         = null;
     public $conteo           = 0;
@@ -50,7 +50,7 @@ class ListaRequerimientos extends Component
         //                  ->orWhere('codigo', 'like', '%'.$this->search.'%')
         //                  ->orWhere('cedula', 'like', '%'.$this->search.'%');
         //            })
-        //           ->where('sectors.nombre', 'like', '%'.$this->sectorSearch.'%')
+        //           ->where('sectors.nombre', 'like', '%'.$this->codigoCatastral.'%')
         //           ->where(function ($query) {
         //               if ($this->status !== '') {
         //                  $query->where('requerimientos.estado', $this->status);
@@ -79,11 +79,11 @@ class ListaRequerimientos extends Component
                     ->orWhere('cedula', 'like', '%' . $this->search . '%');
             })
             ->where(function ($query) {
-                if ($this->sectorSearch !== '') {
-                    $query->where('sectors.nombre', 'like', '%' . $this->sectorSearch . '%');
+                if ($this->codigoCatastral !== '') {
+                    $query->where('requerimientos.codigo_catastral', 'like', '%' . $this->codigoCatastral . '%');
                 }
             })
-            // ->where('sectors.nombre', 'like', '%'.$this->sectorSearch.'%')
+            // ->where('sectors.nombre', 'like', '%'.$this->codigoCatastral.'%')
             ->where(function ($query) {
                 if ($this->status !== '') {
                     $query->where('requerimientos.estado', $this->status);

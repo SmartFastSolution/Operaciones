@@ -9,8 +9,9 @@
                     <input type="text" class="form-control" wire:model="search" placeholder="Buscar Requerimiento">
                 </div>
                 <div class="form-group col-lg-4">
-                    <label for="">Buscar Un Sector</label>
-                    <input type="text" class="form-control" wire:model="sectorSearch" placeholder="Buscar Sector">
+                    <label for="">Buscar Codigo Catastral</label>
+                    <input type="text" class="form-control" wire:model="codigoCatastral"
+                        placeholder="Buscar Codigo Catastral">
                 </div>
                 <div class="form-group col-lg-4">
                     <label for="formControlRange">Selecciona un rango de Requerimientos</label>
