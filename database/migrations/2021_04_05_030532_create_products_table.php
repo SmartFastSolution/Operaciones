@@ -22,13 +22,14 @@ class CreateProductsTable extends Migration
             $table->float('precio_venta')->nullable();
             $table->boolean('porcentual')->nullable();
             $table->integer('iva')->nullable();
-            $table->float('stock', 10,2)->nullable()->default(0);
+            $table->float('stock', 10, 2)->nullable()->default(0);
             $table->float('cantidad')->nullable()->default(0);
             $table->string('cuenta_contable')->nullable();
             $table->string('foto')->nullable();
-            $table->enum('estado',['on','off'])->nullable();
+            $table->enum('estado', ['on', 'off'])->nullable();
             $table->timestamps();
             $table->foreign('medida_id')->references('id')->on('medidas')->onDelete('set null');
+            $table->softDeletes();
         });
     }
 

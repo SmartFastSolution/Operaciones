@@ -13,12 +13,15 @@ use App\Requerimiento;
 use App\ConversionUnidad;
 use App\TipoRequerimiento;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\RequerimientoRequest;
+use App\Traits\RequerimientoTrait;
 
 class RequerimientoController extends Controller
 {
+    use RequerimientoTrait;
     public function __construct()
     {
         $this->middleware('auth');
@@ -148,20 +151,34 @@ class RequerimientoController extends Controller
             'total_egreso.required_if'  => 'No has seleccionado el total del egreso',
 
         ]);
+        DB::beginTransaction();
+        try {
 
+            $atencion                   =  new Atencion;
+            $atencion->requerimiento_id = $id;
+            $atencion->coordinador_id   = Auth::id();
+            $atencion->operador_id      = $request->operador_id;
+            $atencion->detalle          = $request->detalle_atencion;
+            $atencion->observacion      = $request->observacion;
+            $atencion->distancia        = $this->distanciaAtencion($request->latitud, $request->longitud, $id);
+            $atencion->fecha_atencion   = $request->fecha_atencion;
+            $atencion->latitud          = $request->latitud;
+            $atencion->longitud         = $request->longitud;
+            $atencion->save();
 
-        $atencion                   =  new Atencion;
-        $atencion->requerimiento_id = $id;
-        $atencion->coordinador_id   = Auth::id();
-        $atencion->operador_id      = $request->operador_id;
-        $atencion->detalle          = $request->detalle_atencion;
-        $atencion->observacion      = $request->observacion;
-        $atencion->distancia        = $this->distanciaAtencion($request->latitud, $request->longitud, $id);
-        $atencion->fecha_atencion   = $request->fecha_atencion;
-        $atencion->latitud          = $request->latitud;
-        $atencion->longitud         = $request->longitud;
-        $atencion->save();
-
+            if ($request->has('egreso')) {
+                $this->storeEgreso($request->only('codigo', 'descripcion', 'total_egreso', 'items'), $atencion);
+            }
+            $requerimiento              = Requerimiento::find($id);
+            $requerimiento->estado      = 'ejecutado';
+            $requerimiento->operador_id = $request->operador_id;
+            $requerimiento->save();
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            // $error = LogError::create(['payload' => 'Error al aprobar la solicitud de abastecimiento', 'exception' => $e->getMessage()]);
+            return response()->json(['message' => 'Ocurrio un error al realizar el proceso, revisa tu registro de errores'], 501);
+        }
         if ($request->numero > 0) {
             foreach ($request->archivos as $archivo) {
                 $nombre       = time() . '_' . $archivo->getClientOriginalName();
@@ -171,37 +188,7 @@ class RequerimientoController extends Controller
                 $atencion->documentos()->save($documento);
             }
         }
-
-
-        if (isset($request->egreso)) {
-            $egreso               = new Egreso;
-            $egreso->codigo       = $request->codigo;
-            $egreso->descripcion  = $request->descripcion;
-            $egreso->atencion_id  = $atencion->id;
-            $egreso->total_egreso = $request->total_egreso;
-            $egreso->save();
-            $productos = json_decode($request->items, true);
-            // $items = $request->items;
-            $relacion = [];
-            foreach ($productos as $key => $producto) {
-                $produc           = Product::find($producto['id']);
-                $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
-                $stock            = $cantidad / $produc->presentacion;
-                $produc->cantidad = $cantidad;
-                $produc->stock    = $stock;
-                $produc->save();
-                $relacion[$producto['id']] = array(
-                    "cantidad"      => $producto['cantidad_unidad'],
-                    "cantidad_real" => $producto['cantidad_base'],
-                    "total"         => $producto['total'],
-                );
-            }
-            $egreso->productos()->sync($relacion);
-        }
-        $requerimiento              = Requerimiento::find($id);
-        $requerimiento->estado      = 'ejecutado';
-        $requerimiento->operador_id = $request->operador_id;
-        $requerimiento->save();
+        return response()->json(['message' => 'Atencion Realizada Correctamente'], 201);
     }
     public function edit($id, $a)
     {
@@ -361,32 +348,42 @@ class RequerimientoController extends Controller
     }
     public function updateRequerimiento(Requerimiento $requerimiento, RequerimientoRequest $request)
     {
-        $requerimiento->user_id               = Auth::id();
-        $requerimiento->codigo                = $request->codigo_requerimiento;
-        $requerimiento->cuenta                = $request->cuenta_requerimiento;
-        $requerimiento->nombres               = $request->nombre_requerimiento;
-        $requerimiento->codigo_catastral      = $request->codigo_catastral;
-        $requerimiento->cedula                = $request->cedula_requerimiento;
-        $requerimiento->telefonos             = $request->telefonos_requerimiento;
-        $requerimiento->correos               = $request->correos_requerimiento;
-        $requerimiento->direccion             = $request->direccion_requerimiento;
-        $requerimiento->sector_id             = $request->sector_id;
-        $requerimiento->tipo_requerimiento_id = $request->tipo_requerimiento_id;
-        $requerimiento->detalle               = $request->detalle_requerimiento;
-        $requerimiento->observacion           = $request->observacion_requerimiento;
-        $requerimiento->fecha_maxima          = $request->fecha_requerimiento;
-        $requerimiento->latitud               = $request->latitud;
-        $requerimiento->longitud              = $request->longitud;
-        $requerimiento->save();
-        $eliminados = json_decode($request->eliminados);
-        if (count($eliminados) > 0) {
-            foreach ($eliminados as $key => $id) {
-                $docum  = Document::find($id);
-                $image_path = public_path() . $docum->archivo;
-                unlink($image_path);
-                $docum->delete();
-            }
-        };
+        DB::beginTransaction();
+
+        try {
+            $requerimiento->user_id               = Auth::id();
+            $requerimiento->codigo                = $request->codigo_requerimiento;
+            $requerimiento->cuenta                = $request->cuenta_requerimiento;
+            $requerimiento->nombres               = $request->nombre_requerimiento;
+            $requerimiento->codigo_catastral      = $request->codigo_catastral;
+            $requerimiento->cedula                = $request->cedula_requerimiento;
+            $requerimiento->telefonos             = $request->telefonos_requerimiento;
+            $requerimiento->correos               = $request->correos_requerimiento;
+            $requerimiento->direccion             = $request->direccion_requerimiento;
+            $requerimiento->sector_id             = $request->sector_id;
+            $requerimiento->tipo_requerimiento_id = $request->tipo_requerimiento_id;
+            $requerimiento->detalle               = $request->detalle_requerimiento;
+            $requerimiento->observacion           = $request->observacion_requerimiento;
+            $requerimiento->fecha_maxima          = $request->fecha_requerimiento;
+            $requerimiento->latitud               = $request->latitud;
+            $requerimiento->longitud              = $request->longitud;
+            $requerimiento->save();
+            $eliminados = json_decode($request->eliminados);
+            if (count($eliminados) > 0) {
+                foreach ($eliminados as $key => $id) {
+                    $docum  = Document::find($id);
+                    $image_path = public_path() . $docum->archivo;
+                    unlink($image_path);
+                    $docum->delete();
+                }
+            };
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            // $error = LogError::create(['payload' => 'Error al aprobar la solicitud de abastecimiento', 'exception' => $e->getMessage()]);
+            return response()->json(['message' => 'Ocurrio un error al realizar el proceso, revisa tu registro de errores'], 501);
+        }
+
         if ($request->hasFile('archivos')) {
             foreach ($request->archivos as $archivo) {
                 $nombre   = time() . '_' . $archivo->getClientOriginalName();

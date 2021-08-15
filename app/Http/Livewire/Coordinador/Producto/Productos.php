@@ -31,7 +31,7 @@ class Productos extends Component
     public $estado     = 'on';
     public $unidad     = '';
     public $editMode   = false;
-    public $foto;
+    public $foto, $picture;
     public $medidas    = [];
     public $nombre_producto,
         $presentacion_producto,
@@ -121,21 +121,24 @@ class Productos extends Component
     }
     public function resetInput()
     {
-        $this->nombre_producto       = null;
-        $this->presentacion_producto = null;
-        $this->medida_id             = '';
-        $this->compra_producto       = null;
-        $this->venta_producto        = null;
-        $this->porcentual            = null;
-        $this->iva_producto          = null;
-        $this->cuenta_producto       = null;
-        $this->foto                  = null;
-        $this->porcentual = false;
-        $this->editMode = false;
+        $this->reset([
+            'nombre_producto',
+            'presentacion_producto',
+            'medida_id',
+            'compra_producto',
+            'venta_producto',
+            'porcentual',
+            'iva_producto',
+            'cuenta_producto',
+            'foto',
+            'porcentual',
+            'editMode',
+            'picture',
+        ]);
     }
     public function editProducto($id)
     {
-        $this->producto_id = $id;
+        $this->producto_id           = $id;
         $producto                    = Product::find($id);
         $this->nombre_producto       = $producto->nombre;
         $this->presentacion_producto = $producto->presentacion;
@@ -145,12 +148,8 @@ class Productos extends Component
         $this->porcentual            = $producto->porcentual;
         $this->iva_producto          = $producto->iva;
         $this->cuenta_producto       = $producto->cuenta_contable;
-
-        if ($producto->estado  == 'on') {
-            $this->status = true;
-        } else {
-            $this->status = false;
-        }
+        $this->picture               = $producto->foto;
+        $this->status                = $producto->estado == 'on' ? true : false;
         $this->editMode = true;
     }
     public function updateProducto()
@@ -185,29 +184,21 @@ class Productos extends Component
         $producto->precio_compra   = $this->compra_producto;
         $producto->precio_venta    = $this->venta_producto;
         $producto->porcentual      = $this->porcentual;
-        if ($this->porcentual) {
-            $producto->iva             = $this->iva_producto;
-        } else {
-            $producto->iva             = null;
-        }
+        $producto->iva = $this->porcentual ? $this->iva_producto : null;
         $producto->cuenta_contable = $this->cuenta_producto;
-        if ($this->foto) {
-            $image_path = public_path() . $producto->foto;
-            unlink($image_path);
+        if (isset($this->foto)) {
+            if (isset($producto->foto)) {
+                $image_path = public_path() . $producto->foto;
+                unlink($image_path);
+            }
             $nombre   = time() . '_' . $this->foto->getClientOriginalName();
             $urlimagen  = '/img/productos/' . $nombre;
 
             $this->foto->storeAs('img/productos',  $nombre, 'public_upload');
-
             $producto->foto            = $urlimagen;
         }
-        if ($this->status) {
-            $producto->estado          = 'on';
-        } else {
-            $producto->estado          = 'off';
-        }
+        $producto->estado = $this->status ? 'on' : 'off';
         $producto->save();
-
         $this->resetInput();
         $this->emit('info', ['mensaje' => 'Producto Actualizado Correctamente', 'modal' => '#crearProducto']);
     }
@@ -224,10 +215,9 @@ class Productos extends Component
             $this->emit('info', ['mensaje' => 'Estado Activado Actualizado']);
         }
     }
-    public function eliminarProducto($id)
+    public function eliminarProducto(Product $product)
     {
-        $producto = Product::find($id);
-        $producto->delete();
+        $product->delete();
     }
     public function generaExcel()
     {

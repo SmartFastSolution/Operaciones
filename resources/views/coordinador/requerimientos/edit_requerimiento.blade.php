@@ -277,7 +277,7 @@
 </div>
 <div class="row justify-content-center">
 <button type="button" :disabled="buttonDisable" class="btn btn-primary"
-    @click.prevent="submitRequerimiento">Crear
+    @click.prevent="submitRequerimiento">Actualizar
     Requerimiento</button>
 </div>
 </div>

@@ -509,12 +509,12 @@
                 data.append('latitud', set.puntuacion.lat);
                 data.append('longitud', set.puntuacion.lng);
                 if (set.has_egreso) {
-                    data.append('egreso', set.has_egreso);
+                    data.append('egreso', 'si');
                     data.append('codigo', set.egreso.codigo);
                     data.append('descripcion', set.egreso.descripcion);
                     data.append('total_egreso', set.egreso.total_egreso);
+                    data.append('items', JSON.stringify(set.egreso.items));
                 }
-                data.append('items', JSON.stringify(set.egreso.items));
                 axios.post('/coordinador/requerimiento/' + id + '/atencion', data, config)
                     .then(function(res) {
                         // console.log(res.data)
