@@ -71,12 +71,14 @@ class ListaRequerimientos extends Component
     {
         $requerimientos = Requerimiento::leftJoin('sectors',  'sectors.id',  '=', 'requerimientos.sector_id',)
             ->leftJoin('tipo_requerimientos', 'tipo_requerimientos.id',  '=', 'requerimientos.tipo_requerimiento_id')
+            ->leftJoin('users', 'requerimientos.operador_id', '=', 'users.id')
             ->where(function ($query) {
-                $query->where('nombres', 'like', '%' . $this->search . '%')
+                $query->where('requerimientos.nombres', 'like', '%' . $this->search . '%')
                     // ->orWhere('codigo_catastral', 'like', '%'.$this->search.'%')
-                    ->orWhere('direccion', 'like', '%' . $this->search . '%')
-                    ->orWhere('codigo', 'like', '%' . $this->search . '%')
-                    ->orWhere('cedula', 'like', '%' . $this->search . '%');
+                    ->orWhere('requerimientos.direccion', 'like', '%' . $this->search . '%')
+                    ->orWhere('requerimientos.codigo', 'like', '%' . $this->search . '%')
+                    ->orWhere('users.nombres', 'like', '%' . $this->search . '%')
+                    ->orWhere('requerimientos.cedula', 'like', '%' . $this->search . '%');
             })
             ->where(function ($query) {
                 if ($this->codigoCatastral !== '') {
@@ -90,7 +92,7 @@ class ListaRequerimientos extends Component
                 }
             })
             ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini, $this->fechafin])
-            ->select('requerimientos.*', 'sectors.nombre as sector', 'tipo_requerimientos.nombre as requerimiento')
+            ->select('requerimientos.*', 'sectors.nombre as sector', 'tipo_requerimientos.nombre as requerimiento', 'users.nombres as operador')
             // ->orderBy($this->orderBy, $this->orderAsc ? 'asc' : 'desc')
             ->latest('requerimientos.fecha_maxima')
             ->take($this->rango)

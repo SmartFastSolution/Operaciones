@@ -59,6 +59,7 @@ class LiberacionRequerimiento extends Component
             ->where(function ($query) {
                 $query->where('requerimientos.nombres', 'like', '%' . $this->search . '%')
                     ->orWhere('requerimientos.codigo', 'like', '%' . $this->search . '%')
+                    ->orWhere('users.nombres', 'like', '%' . $this->search . '%')
                     ->orWhere('requerimientos.cedula', 'like', '%' . $this->search . '%');
             })
             ->whereBetween('requerimientos.fecha_maxima', [$this->fechaini, $this->fechafin])

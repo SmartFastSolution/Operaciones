@@ -5,8 +5,9 @@ namespace App\Http\Livewire\Coordinador\Producto;
 use App\Ingreso;
 use App\Product;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\DB;
 
 class Ingresos extends Component
 {
@@ -34,9 +35,10 @@ class Ingresos extends Component
     public $productos         = [];
     public function render()
     {
-        $this->productos = Product::where('estado', 'on')->with(['medida' => function ($query) {
+
+        $this->productos = Product::with(['medida' => function ($query) {
             $query->select('id', 'simbolo');
-        }])->get();
+        }])->select('id', 'nombre', 'stock', 'cantidad', 'presentacion', 'iva', 'porcentual', 'precio_venta', 'medida_id')->where('estado', 'on')->get();
 
         $ingresos = Ingreso::where(function ($query) {
             $query->where('codigo', 'like', '%' . $this->search . '%')
@@ -98,29 +100,28 @@ class Ingresos extends Component
         $this->validate([
             'codigo_ingreso'      => 'required',
             'descripcion_ingreso' => 'required',
+            'items'       => 'required|array|min:1',
             'total_ingreso'       => 'required',
         ], [
             'codigo_ingreso.required'      => 'No has agregado el codigo',
             'descripcion_ingreso.required' => 'No has agregado la descripcion',
-            'total_ingreso.required'       => 'No has agregado el total
-			',
+            'total_ingreso.required'       => 'No has agregado el total',
+            'items.required'       => 'No has seleccionado un producto',
+            'items.min'       => 'Debes tener minimo un producto',
         ]);
         $this->exportando = true;
-
-
         $ingreso                = new Ingreso;
         $ingreso->codigo        = $this->codigo_ingreso;
         $ingreso->descripcion   = $this->descripcion_ingreso;
         $ingreso->total_ingreso = $this->total_ingreso;
         $ingreso->save();
-
         $relacion = [];
         foreach ($this->items as $key => $item) {
-            $producto = Product::find($key);
+            $producto = Product::find($item['id']);
             $producto->stock = $producto->stock + $item['cantidad'];
             $producto->cantidad = $producto->cantidad + ($item['cantidad'] * $producto->presentacion);
             $producto->save();
-            $relacion[$key] = array(
+            $relacion[$item['id']] = array(
                 'cantidad' => $item['cantidad'],
                 'precio' => $item['precio'],
                 'total'    => $item['total']
@@ -144,6 +145,7 @@ class Ingresos extends Component
         $this->exportando          = false;
         $this->editMode            = false;
         $this->items               = [];
+        $this->emit('reset');
     }
     public function editIngreso($id)
     {
@@ -156,6 +158,7 @@ class Ingresos extends Component
         $this->descripcion_ingreso = $ingreso->descripcion;
         $this->total_ingreso       = $ingreso->total_ingreso;
 
+        $items = [];
         foreach ($ingreso->productos as $key => $producto) {
             $item = array(
                 "id"       => $producto->id,
@@ -165,16 +168,19 @@ class Ingresos extends Component
                 "total"    => $producto->pivot->total,
             );
 
-            $this->items[$producto->id] = $item;
+            $items[] = $item;
         }
         $this->editMode = true;
+
+        $this->emit('edit', ['codigo_ingreso' => $ingreso->codigo, 'descripcion_ingreso' => $ingreso->descripcion, 'total_ingreso' => $ingreso->total_ingreso, 'items' => $items]);
     }
-    public function updateIngreso($value = '')
+    public function updateIngreso()
     {
         $this->validate([
             'codigo_ingreso'      => 'required',
             'descripcion_ingreso' => 'required',
             'total_ingreso'       => 'required',
+            'items'       => 'required|array|min:1',
         ], [
             'codigo_ingreso.required'      => 'No has agregado el codigo',
             'descripcion_ingreso.required' => 'No has agregado la descripcion',
@@ -182,43 +188,42 @@ class Ingresos extends Component
 			',
         ]);
         $this->exportando = true;
-
-
-        $ingreso = Ingreso::with(['productos'])->find($this->ingreso_id);
-
-        $ingreso->codigo        = $this->codigo_ingreso;
-        $ingreso->descripcion   = $this->descripcion_ingreso;
-        $ingreso->total_ingreso = $this->total_ingreso;
-
-        foreach ($ingreso->productos as $key => $producto) {
-            $prod = Product::find($producto->id);
-            if (($prod->stock - $producto->pivot->cantidad) < 0) {
-                $this->exportando = false;
-
-                return   $this->emit('warning', ['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);
+        DB::beginTransaction();
+        try {
+            $ingreso = Ingreso::with(['productos'])->find($this->ingreso_id);
+            $ingreso->codigo        = $this->codigo_ingreso;
+            $ingreso->descripcion   = $this->descripcion_ingreso;
+            $ingreso->total_ingreso = $this->total_ingreso;
+            foreach ($ingreso->productos as $key => $producto) {
+                $prod = Product::find($producto->id);
+                if (($prod->stock - $producto->pivot->cantidad) < 0) {
+                    $this->exportando = false;
+                    throw new \Exception();
+                    // return   $this->emit('warning', ['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);
+                }
+                $prod->stock = $prod->stock - $producto->pivot->cantidad;
+                $prod->cantidad = $prod->cantidad - ($producto->pivot->cantidad * $prod->presentacion);
+                $prod->save();
             }
-            $prod->stock = $prod->stock - $producto->pivot->cantidad;
-
-
-            $prod->cantidad = $prod->cantidad - ($producto->pivot->cantidad * $prod->presentacion);
-            $prod->save();
+            $relacion = [];
+            foreach ($this->items as $key => $item) {
+                $producto = Product::find($item['id']);
+                $producto->stock = $producto->stock + $item['cantidad'];
+                $producto->cantidad = $producto->cantidad + ($item['cantidad'] * $producto->presentacion);
+                $producto->save();
+                $relacion[$item['id']] = array(
+                    'cantidad' => $item['cantidad'],
+                    'precio' => $item['precio'],
+                    'total'    => $item['total']
+                );
+            }
+            $ingreso->save();
+            DB::commit();
+            $ingreso->productos()->sync($relacion);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->emit('error', ['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);
         }
-
-        $relacion = [];
-        foreach ($this->items as $key => $item) {
-            $producto = Product::find($key);
-            $producto->stock = $producto->stock + $item['cantidad'];
-            $producto->cantidad = $producto->cantidad + ($item['cantidad'] * $producto->presentacion);
-            $producto->save();
-            $relacion[$key] = array(
-                'cantidad' => $item['cantidad'],
-                'precio' => $item['precio'],
-                'total'    => $item['total']
-            );
-        }
-        $ingreso->save();
-
-        $ingreso->productos()->sync($relacion);
 
         $this->emit('info', ['mensaje' => 'Ingreso Actualizado Correctamente', 'modal' => '#crearIngreso']);
         $this->exportando = false;
