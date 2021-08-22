@@ -82,13 +82,13 @@
                                             <td class="text-center">{{ $producto->presentacion }}</td>
                                             <td class="text-center">{{ $producto->unidad }}</td>
                                             <td class="text-center">
-                                                {{ number_format($producto->precio_compra, 2, ',', '.') }}</td>
+                                                {{ number_format($producto->precio_compra, 3, ',', '.') }}</td>
                                             <td class="text-center">
-                                                {{ number_format($producto->precio_venta, 2, ',', '.') }}</td>
+                                                {{ number_format($producto->precio_venta, 3, ',', '.') }}</td>
                                             <td class="text-center">{{ $producto->iva }}</td>
                                             <td class="text-center">
                                                 <span class="badge  @if ($producto->stock < 10) badge-danger
-   @elseif ($producto->stock > 10)
+@elseif ($producto->stock > 10)
            badge-success @endif">
                                                         {{ number_format($producto->stock, 2) }}
                                                 </span>

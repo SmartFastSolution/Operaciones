@@ -17,8 +17,8 @@ class CreateConversionUnidadsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('medida_base');
             $table->unsignedBigInteger('medida_conversion');
-            $table->float('factor', 10,8);
-            $table->enum('accion',['multiplicar','dividir'])->nullable();
+            $table->float('factor', 20, 8);
+            $table->enum('accion', ['multiplicar', 'dividir'])->nullable();
             $table->foreign('medida_base')->references('id')->on('medidas')->onDelete('cascade');
             $table->foreign('medida_conversion')->references('id')->on('medidas')->onDelete('cascade');
             $table->timestamps();

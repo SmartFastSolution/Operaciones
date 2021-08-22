@@ -22,6 +22,3 @@ Route::get('/', 'HomeController@index')->name('index');
 Route::get('/novedades', 'HomeController@novedades')->name('novedades');
 Route::get('/coordinador/{id}/informacion', 'HomeController@datos')->name('coordinador.datos');
 Route::get('/calendario/redirigir/{id}', 'HomeController@calendario')->name('calendario');
-
-
-

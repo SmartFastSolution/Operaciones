@@ -157,6 +157,7 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         Laravolt\Avatar\ServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+
         /*
          * Application Service Providers...
          */

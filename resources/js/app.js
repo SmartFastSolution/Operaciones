@@ -3,33 +3,38 @@ require('./bootstrap');
 window.Vue = require('vue');
 
 import * as VueGoogleMaps from 'vue2-google-maps';
- 
+
 Vue.use(VueGoogleMaps, {
-  load: {
-    key: 'AIzaSyAjTI2PvulL273cY6kgGjLZK-W1s3KekCU', //API MIA
-    // key: 'AIzaSyCSVcwB2sijhfbQlrGX14SxUU9BoyZVPJo', //INGENIERO
-    libraries: 'places', // This is required if you use the Autocomplete plugin
-    // OR: libraries: 'places,drawing'
-    // OR: libraries: 'places,drawing,visualization'
-    // (as you require)
- 
-    //// If you want to set the version, you can do so:
-    // v: '3.26',
-  },
-  installComponents: true
+    load: {
+        key: 'AIzaSyAjTI2PvulL273cY6kgGjLZK-W1s3KekCU', //API MIA
+        // key: 'AIzaSyCSVcwB2sijhfbQlrGX14SxUU9BoyZVPJo', //INGENIERO
+        libraries: 'places', // This is required if you use the Autocomplete plugin
+        // OR: libraries: 'places,drawing'
+        // OR: libraries: 'places,drawing,visualization'
+        // (as you require)
+
+        //// If you want to set the version, you can do so:
+        // v: '3.26',
+    },
+    installComponents: true
 });
 const VueUploadComponent = require('vue-upload-component')
 Vue.component('file-upload', VueUploadComponent);
 
 import 'vue-search-select/dist/VueSearchSelect.css';
-import { ModelListSelect  } from 'vue-search-select';
-Vue.component('ModelListSelect', ModelListSelect );
+import { ModelListSelect } from 'vue-search-select';
+Vue.component('ModelListSelect', ModelListSelect);
 
 import VueCkeditor from 'vue-ckeditor2';
-Vue.component('vue-ckeditor', VueCkeditor );
+Vue.component('vue-ckeditor', VueCkeditor);
 
 import VueGallerySlideshow from 'vue-gallery-slideshow';
-Vue.component('vue-gallery-slideshow', VueGallerySlideshow );
+Vue.component('vue-gallery-slideshow', VueGallerySlideshow);
+
+import money from 'v-money';
+
+// register directive v-money and component <money>
+Vue.use(money, { precision: 4 });
 
 // import FullCalendar from '@fullcalendar/vue'
 // import dayGridPlugin from '@fullcalendar/daygrid'

@@ -218,8 +218,9 @@ class Ingresos extends Component
                 );
             }
             $ingreso->save();
-            DB::commit();
             $ingreso->productos()->sync($relacion);
+
+            DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->emit('error', ['mensaje' => 'Esta accion no se puede realizar, ya que tu stock quedaria menor a 0']);

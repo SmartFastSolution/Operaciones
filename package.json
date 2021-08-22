@@ -30,6 +30,7 @@
         "@fullcalendar/list": "^5.6.0",
         "@fullcalendar/timegrid": "^5.6.0",
         "@fullcalendar/vue": "^5.6.0",
+        "v-money": "^0.8.1",
         "vue-ckeditor2": "^2.1.5",
         "vue-gallery-slideshow": "^1.5.2",
         "vue-search-select": "^2.9.3",

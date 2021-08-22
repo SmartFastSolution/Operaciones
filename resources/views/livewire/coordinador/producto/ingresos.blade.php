@@ -58,7 +58,7 @@
                                             <td class="p-0 text-center">{{ $ingreso->codigo }}</td>
                                             <td class="p-0 text-center">{{ $ingreso->descripcion }}</td>
                                             <td class="p-0 text-center">
-                                                {{ number_format($ingreso->total_ingreso, 2) }}</td>
+                                                {{ number_format($ingreso->total_ingreso, 3, ',', '.') }}</td>
                                             <td class="p-0 text-center" width="50"><a
                                                     href="{{ route('coordinador.producto.ingresoshow', $ingreso->id) }}"
                                                     class="btn btn-primary"><i class="fa fa-eye"></i></a></td>

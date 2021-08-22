@@ -3,11 +3,14 @@
 namespace App\Http\Livewire\Coordinador\Producto;
 
 use App\Egreso;
+use App\Medida;
 use App\Product;
 use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\ConversionUnidad;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Exports\EgresosExport;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -35,14 +38,21 @@ class Egresos extends Component
     public $producto_cantidad = 1, $producto_id = '', $producto_total, $producto_precio, $egreso_id;
     public $items             = [];
     public $productos         = [];
+    public $conversiones         = [];
+    public $medidas         = [];
     public function render()
     {
+
+        $this->conversiones = ConversionUnidad::all(['id', 'medida_base', 'medida_conversion', 'factor']);
+        $this->medidas = Medida::all(['id', 'unidad', 'simbolo']);
 
         $this->productos = Product::where('estado', 'on')->with(['medida' => function ($query) {
             $query->select('id', 'simbolo');
         }])->get();
 
-        $egresos = Egreso::withcount('productos')->where(function ($query) {
+        $egresos = Egreso::withcount(['productos' => function ($query) {
+            $query->withTrashed();
+        }])->where(function ($query) {
             $query->where('codigo', 'like', '%' . $this->search . '%')
                 ->orWhere('descripcion', 'like', '%' . $this->search . '%')
                 ->orWhere('total_egreso', 'like', '%' . $this->search . '%');
@@ -58,29 +68,34 @@ class Egresos extends Component
 
     public function guardarEgreso($datos)
     {
-        $egreso = new Egreso;
-        $egreso->codigo = $datos['codigo'];
-        $egreso->descripcion = $datos['descripcion'];
-        $egreso->total_egreso = $datos['total_egreso'];
-        $egreso->save();
-
-        $productos = $datos['items'];
-        $relacion = [];
-        foreach ($productos as $key => $producto) {
-            $produc           = Product::find($producto['id']);
-            $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
-
-            $relacion[$producto['id']] = array(
-                "cantidad"      => $producto['cantidad_unidad'],
-                "cantidad_real" => $producto['cantidad_base'],
-                "total"         => $producto['total'],
-            );
+        DB::beginTransaction();
+        try {
+            $egreso = new Egreso;
+            $egreso->codigo = $datos['codigo'];
+            $egreso->descripcion = $datos['descripcion'];
+            $egreso->total_egreso = $datos['total_egreso'];
+            $egreso->save();
+            $productos = $datos['items'];
+            $relacion = [];
+            foreach ($productos as $key => $producto) {
+                $produc           = Product::find($producto['id']);
+                $cantidad         = intval($produc->cantidad) - $producto['cantidad_base'];
+                $stock            = $cantidad / $produc->presentacion;
+                $produc->cantidad = $cantidad;
+                $produc->stock    = $stock;
+                $produc->save();
+                $relacion[$producto['id']] = array(
+                    "cantidad"      => $producto['cantidad_unidad'],
+                    "cantidad_real" => $producto['cantidad_base'],
+                    "total"         => $producto['total'],
+                );
+            }
+            $egreso->productos()->sync($relacion);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->emit('error', ['mensaje' => 'Esta accion no se puede realizar, ocurrio un error en el sistema']);
         }
-        $egreso->productos()->sync($relacion);
 
         $this->emit('success', ['mensaje' => 'Egreso Creado Correctamente', 'modal' => '#crearEgreso']);
     }
@@ -88,8 +103,9 @@ class Egresos extends Component
     {
         $this->egreso_id = $id;
         $egreso = Egreso::with(['productos' =>  function ($query) {
-            $query->select('products.id');
+            $query->select('products.id', 'medida_id');
         }])->find($id);
+
         $data = array(
             "egreso" => $egreso,
             "items" => $egreso->productos,
@@ -99,43 +115,49 @@ class Egresos extends Component
     }
     public function actualizarEgreso($datos)
     {
-        $egreso = Egreso::with(['productos' =>  function ($query) {
-            $query->select('products.id');
-        }])->find($this->egreso_id);
+        DB::beginTransaction();
+        try {
+            $egreso = Egreso::with(['productos' =>  function ($query) {
+                $query->select('products.id', 'medida_id');
+            }])->find($this->egreso_id);
 
-        foreach ($egreso->productos as $key => $producto) {
-            $produc           = Product::find($producto->id);
-            $cantidad         = intval($produc->cantidad) + $producto->pivot->cantidad_real;
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
+            foreach ($egreso->productos as $key => $producto) {
+                $produc           = Product::find($producto->id);
+                $cantidad         = intval($produc->cantidad) + $producto->pivot->cantidad_real;
+                $stock            = $cantidad / $produc->presentacion;
+                $produc->cantidad = $cantidad;
+                $produc->stock    = $stock;
+                $produc->save();
+            }
+
+            $egreso->codigo       = $datos['codigo'];
+            $egreso->descripcion  = $datos['descripcion'];
+            $egreso->total_egreso = number_format($datos['total_egreso'], 3);
+            $egreso->save();
+
+            $productos = $datos['items'];
+            $relacion = [];
+
+            foreach ($productos as $key => $producto) {
+                $produc           = Product::find($producto['id']);
+                $cantidad         = intval($produc->cantidad) - $producto['cantidad_base'];
+                $stock            = $cantidad / $produc->presentacion;
+                $produc->cantidad = $cantidad;
+                $produc->stock    = $stock;
+                $produc->save();
+
+                $relacion[$producto['id']] = array(
+                    "cantidad"      => $producto['cantidad_unidad'],
+                    "cantidad_real" => $producto['cantidad_base'],
+                    "total"         => number_format($producto['total'], 3),
+                );
+            }
+            $egreso->productos()->sync($relacion);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->emit('error', ['mensaje' => 'Esta accion no se puede realizar, ocurrio un error en el sistema']);
         }
-
-        $egreso->codigo       = $datos['codigo'];
-        $egreso->descripcion  = $datos['descripcion'];
-        $egreso->total_egreso = number_format($datos['total_egreso'], 2);
-        $egreso->save();
-
-        $productos = $datos['items'];
-        $relacion = [];
-
-        foreach ($productos as $key => $producto) {
-            $produc           = Product::find($producto['id']);
-            $cantidad         = intval($produc->cantidad) - $producto['cantidad_unidad'];
-            $stock            = $cantidad / $produc->presentacion;
-            $produc->cantidad = $cantidad;
-            $produc->stock    = $stock;
-            $produc->save();
-
-            $relacion[$producto['id']] = array(
-                "cantidad"      => $producto['cantidad_unidad'],
-                "cantidad_real" => $producto['cantidad_base'],
-                "total"         => number_format($producto['total'], 2),
-            );
-        }
-        $egreso->productos()->sync($relacion);
-
         $this->emit('info', ['mensaje' => 'Egreso Actualizado Correctamente', 'modal' => '#crearEgreso']);
     }
     public function eliminarEgreso($id)

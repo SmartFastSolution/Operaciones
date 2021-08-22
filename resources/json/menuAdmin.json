@@ -86,17 +86,17 @@
             "submenu": [
                 {
                     "route": "coordinador.producto.index",
-                    "url": "admin/productos",
+                    "url": "coordinador/productos",
                     "name": "Productos"
                 },
                 {
                     "route": "coordinador.producto.ingreso",
-                    "url": "admin/ingresos",
+                    "url": "coordinador/productos/ingresos",
                     "name": "Ingresos"
                 },
                 {
                     "route": "coordinador.producto.egreso",
-                    "url": "admin/egresos",
+                    "url": "coordinador/productos/egresos",
                     "name": "Egresos"
                 }
             ]
