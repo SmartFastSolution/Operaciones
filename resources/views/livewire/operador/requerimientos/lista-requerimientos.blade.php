@@ -15,7 +15,7 @@
                 </div>
                 <div class="form-group col-lg-4">
                     <label for="formControlRange">Selecciona un rango de Requerimientos</label>
-                    <input type="range" wire:model="rango" min="100" max="10000" step="100" class="form-control-range"
+                    <input type="range" wire:model="rango" min="100" max="60000" step="100" class="form-control-range"
                         id="formControlRange">
                     <small class="text-danger">{{ $rango }}</small>
                 </div>
